@@ -6,14 +6,14 @@ const bcrypt = require("bcrypt");
 const app = express();
 const PORT = 3000;
 
-// Configurações do Express
+// Configurações do Express (ANTES das rotas)
 app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.json());
 app.use(express.static(__dirname));
 
 // * Rota de cadastro
 app.post("/api/cadastro", async (req, res) => {
   try {
-    // Extrai dados do formulário
     let {
       nome,
       email,
@@ -56,16 +56,27 @@ app.post("/api/cadastro", async (req, res) => {
       );
     }
 
-    res.send("Cadastro realizado com sucesso!");
-
+    res.json({ success: true, message: "Cadastro realizado com sucesso!" });
     console.log(`Novo usuário cadastrado: ${nome} (ID: ${id_usuario})`);
   } catch (err) {
     console.error(err);
-    res.status(500).send("Erro no cadastro: " + err.message);
+    res
+      .status(500)
+      .json({ success: false, message: "Erro no cadastro: " + err.message });
   }
 });
 
-// Inicia o servidor
-app.listen(PORT, () => {
-  console.log(`Servidor rodando em http://localhost:${PORT}`);
-});
+// Testa a conexão e inicia o servidor
+db.getConnection()
+  .then((conn) => {
+    console.log("Conexão com o banco estabelecida!");
+    conn.release();
+
+    app.listen(PORT, () => {
+      console.log(`Servidor rodando em http://localhost:${PORT}`);
+    });
+  })
+  .catch((err) => {
+    console.error("Erro ao conectar no banco:", err.message);
+    process.exit(1);
+  });
