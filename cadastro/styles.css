@@ -1,0 +1,106 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: Arial, sans-serif;
+  background-color: #f0f0f0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  padding: 20px;
+}
+
+.cadastro-form {
+  background: white;
+  padding: 40px;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  max-width: 500px;
+}
+
+h2 {
+  margin-bottom: 30px;
+  color: #333;
+}
+
+label {
+  display: block;
+  margin-bottom: 5px;
+  color: #555;
+  font-size: 14px;
+}
+
+input {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+  margin-bottom: 15px;
+}
+
+input:focus {
+  outline: none;
+  border-color: #667eea;
+}
+
+input[readonly] {
+  background-color: #f5f5f5;
+}
+
+.endereco {
+  background: #f9f9f9;
+  padding: 20px;
+  border-radius: 6px;
+  margin-bottom: 15px;
+}
+
+.endereco-row {
+  display: flex;
+  gap: 10px;
+}
+
+.endereco-row .field {
+  flex: 1;
+}
+
+.endereco-row .field-small {
+  flex: 0 0 100px;
+}
+
+.endereco-row .field-large {
+  flex: 2;
+}
+
+button {
+  width: 100%;
+  padding: 12px;
+  background-color: #667eea;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+button:hover {
+  background-color: #5568d3;
+}
+
+p {
+  font-size: 12px;
+  color: #666;
+  margin-top: 15px;
+  margin-bottom: 15px;
+}
+
+@media (max-width: 600px) {
+  .endereco-row {
+    flex-direction: column;
+  }
+}
