@@ -8,45 +8,55 @@
     <script src="script.js" defer></script>
   </head>
   <body>
-    <form action="/api/cadastro" method="POST">
+    <form method="POST" class="cadastro-form">
       <h2>Cadastro</h2>
 
-      <label>Nome</label>
-      <input type="text" name="nome" required />
+      <label for="input-nome">Nome</label>
+      <input type="text" name="nome" id="input-nome" required />
 
-      <label>E-mail</label>
-      <input type="email" name="email" required />
+      <label for="input-email">E-mail</label>
+      <input type="email" name="email" id="input-email" required />
 
-      <label>Telefone</label>
-      <input type="tel" name="telefone" required />
+      <label for="input-telefone">Telefone</label>
+      <input type="tel" name="telefone" id="input-telefone" required />
 
-      <label>CPF</label>
-      <input type="text" name="cpf" required />
+      <label for="input-cpf">CPF</label>
+      <input type="text" name="cpf" id="input-cpf" required />
 
       <div class="endereco">
-        <label>CEP</label>
-        <input type="text" name="cep" required />
+        <div class="endereco-row">
+          <div class="field-large">
+            <label for="input-cep">CEP</label>
+            <input type="text" name="cep" id="input-cep" required />
+          </div>
+          <div class="field-small">
+            <label for="input-numero">Número</label>
+            <input type="text" name="numero" id="input-numero" required />
+          </div>
+        </div>
 
-        <label>Rua</label>
-        <input type="text" name="rua" readonly />
+        <label for="input-rua">Rua</label>
+        <input type="text" name="rua" id="input-rua" readonly />
 
-        <label>Número</label>
-        <input type="text" name="numero" required />
-
-        <label>Bairro</label>
-        <input type="text" name="bairro" readonly />
-
-        <label>Cidade</label>
-        <input type="text" name="estado" readonly />
+        <div class="endereco-row">
+          <div class="field">
+            <label for="input-bairro">Bairro</label>
+            <input type="text" name="bairro" id="input-bairro" readonly />
+          </div>
+          <div class="field-small">
+            <label for="input-estado">Estado</label>
+            <input type="text" name="estado" id="input-estado" readonly />
+          </div>
+        </div>
       </div>
 
-      <label>Senha</label>
-      <input type="password" name="senha" required />
+      <label for="input-senha">Senha</label>
+      <input type="password" name="senha" id="input-senha" required />
 
       <p>
         * Ao cadastrar-se você concorda em receber notificações via e-mail e SMS
       </p>
-      <button type="submit">Cadastrar-se</button>
+      <button type="submit" id="button-submit">Cadastrar-se</button>
     </form>
   </body>
 </html>
