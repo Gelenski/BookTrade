@@ -1,74 +1,98 @@
 * {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
 
 body {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-    background-color: #f0f0f0;
-}
-.container {
-    width: 420px;
-    height: 340px;
-    border: 2px solid black;
-    border-radius: 8px;
-    padding: 30px 40px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-    background-color: white;
+  font-family: Arial, sans-serif;
+  background-color: #f0f0f0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  padding: 20px;
 }
 
-.container h2 {
-    text-align: center;
-    margin-bottom: 20px;
-    color: #333;
+.login-form {
+  background: white;
+  padding: 40px;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  max-width: 400px;
 }
 
-div {
-    padding: 8px;   
+h2 {
+  margin-bottom: 30px;
+  color: #333;
+}
+
+label {
+  display: block;
+  margin-bottom: 5px;
+  color: #555;
+  font-size: 14px;
 }
 
 input {
-    padding: 5px;
-    border-radius: 4px;
-    width: 300px;
-    border: 1px solid #ddd;
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+  margin-bottom: 15px;
 }
 
-#btL {
-    padding: 5px;
-    border-radius: 7px;
-    width: 200px;
-    margin-left: 60px;
-    background-color: #667eea;
-    color: white;
-    border: none;
+input:focus {
+  outline: none;
+  border-color: #667eea;
 }
 
-#btC {
-    padding: 5px;
-    border-radius: 4px;
-    width: 200px;
-    margin-left: 60px;
-    background-color: #667eea;
-    color: white;
-    border: none;
+button {
+  width: 100%;
+  padding: 12px;
+  background-color: #667eea;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-size: 16px;
+  cursor: pointer;
 }
 
-#btL:hover {
-    background-color: #5568d3;
-    cursor: pointer;
+button:hover {
+  background-color: #5568d3;
 }
 
-#btC:hover {
-    background-color: #5568d3;
-    cursor: pointer;
+p {
+  font-size: 13px;
+  color: #666;
+  margin-top: 15px;
+  text-align: center;
 }
-a {
-    margin-left: 10px;
-    margin-left: 110px;
+
+p a {
+  color: #667eea;
+  text-decoration: none;
+}
+
+p a:hover {
+  text-decoration: underline;
+}
+.message {
+  text-align: center;
+  font-weight: bold;
+  border-radius: 5px;
+}
+
+.message.success {
+  background-color: #d4edda;
+  color: #155724;
+  border: 1px solid #c3e6cb;
+}
+
+.message.error {
+  background-color: #f8d7da;
+  color: #721c24;
+  border: 1px solid #f5c6cb;
 }
