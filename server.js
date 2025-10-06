@@ -14,7 +14,7 @@ app.use(express.static(__dirname));
 // * Rota de cadastro
 app.post("/api/cadastro", async (req, res) => {
   try {
-    let {
+    const {
       nome,
       email,
       cpf,
@@ -49,7 +49,7 @@ app.post("/api/cadastro", async (req, res) => {
     }
 
     // Remove tudo que não for número do CEP
-    cep = cep.replace(/\D/g, "");
+    const cepLimpo = cep.replace(/\D/g, "");
 
     // Criptografa senha
     const senhaHash = await bcrypt.hash(senha, 10);
@@ -57,7 +57,7 @@ app.post("/api/cadastro", async (req, res) => {
     // Insere endereço
     const [enderecoResult] = await db.query(
       "INSERT INTO endereco (cep, rua, numero, bairro, estado) VALUES (?, ?, ?, ?, ?)",
-      [cep, rua, numero, bairro, estado]
+      [cepLimpo, rua, numero, bairro, estado]
     );
     const id_endereco = enderecoResult.insertId;
 

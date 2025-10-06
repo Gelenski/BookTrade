@@ -5,7 +5,9 @@ const estadoInput = document.querySelector('input[name="estado"]');
 
 cepInput.addEventListener("blur", async () => {
   const cep = cepInput.value.replace(/\D/g, "");
-  if (cep.length !== 8) return;
+  if (cep.length !== 8) {
+    return;
+  }
 
   try {
     const response = await fetch(`https://viacep.com.br/ws/${cep}/json/`);

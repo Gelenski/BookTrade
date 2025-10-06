@@ -1,16 +1,30 @@
 {
   "name": "booktrade",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "Sistema de troca de livros entre usuários",
+  "main": "server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node server.js",
+    "dev": "nodemon server.js",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "prepare": "npm run format && npm run lint:fix"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/Gelenski/BookTrade.git"
   },
-  "keywords": [],
+  "keywords": [
+    "book",
+    "trade",
+    "books",
+    "exchange",
+    "library",
+    "reading",
+    "community"
+  ],
   "author": "",
   "license": "ISC",
   "type": "commonjs",
@@ -21,9 +35,17 @@
   "dependencies": {
     "bcrypt": "^6.0.0",
     "body-parser": "^2.2.0",
-    "dotenv": "^17.2.3",
     "cors": "^2.8.5",
+    "dotenv": "^17.2.3",
     "express": "^5.1.0",
     "mysql2": "^3.15.1"
+  },
+  "devDependencies": {
+    "@eslint/eslintrc": "^3.3.1",
+    "@eslint/js": "^9.37.0",
+    "eslint": "^9.37.0",
+    "globals": "^16.4.0",
+    "nodemon": "^3.1.10",
+    "prettier": "^3.6.2"
   }
 }
