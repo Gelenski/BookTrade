@@ -1,7 +1,6 @@
 DROP DATABASE IF EXISTS booktrade;
 
 CREATE DATABASE booktrade CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-USE booktrade;
 
 USE booktrade;
 
