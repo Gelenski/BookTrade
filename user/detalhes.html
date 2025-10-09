@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Detalhes do Livro</title>
+  <style>
+    body { font-family:Arial,sans-serif; background:#f4f6f8; margin:0; }
+    header { background:#1e3a8a; color:white; padding:20px; text-align:center; }
+    main {
+      padding:30px; max-width:700px; margin:auto; background:white;
+      border-radius:10px; box-shadow:0 4px 10px rgba(0,0,0,.1); margin-top:20px;
+    }
+    img { max-width:100%; border-radius:10px; margin-bottom:20px; }
+    h1 { margin-top:0; color:#1e3a8a; }
+    p { color:#444; font-size:15px; margin:8px 0; }
+    .btns { display:flex; gap:15px; margin-top:20px; }
+    .match-btn, .reject-btn {
+      flex:1; padding:14px; border:none; border-radius:6px; cursor:pointer; font-size:16px;
+    }
+    .match-btn { background:#2563eb; color:white; }
+    .match-btn:hover { background:#1e40af; }
+    .reject-btn { background:#e11d48; color:white; }
+    .reject-btn:hover { background:#9f1239; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Detalhes do Livro</h1>
+  </header>
+  <main>
+    <img id="img" alt="Capa do Livro">
+    <h1 id="title"></h1>
+    <p><strong>Autor:</strong> <span id="author"></span></p>
+    <p><strong>Gênero:</strong> <span id="genre"></span></p>
+    <p><strong>Data de publicação:</strong> <span id="data"></span></p>
+    <p><strong>Edição:</strong> <span id="edicao"></span></p>
+    <p><strong>Local:</strong> <span id="local"></span></p>
+    <p><strong>Estado:</strong> <span id="estado"></span></p>
+    <p><strong>Defeitos:</strong> <span id="defeito"></span></p>
+    <p><strong>Notas do dono:</strong> <span id="notas"></span></p>
+    <p><strong>Páginas:</strong> <span id="paginas"></span></p>
+    <p><strong>Idioma:</strong> <span id="idioma"></span></p>
+    <p><strong>Editora:</strong> <span id="editora"></span></p>
+    <p><strong>ISBN:</strong> <span id="isbn"></span></p>
+    <p><strong>Disponibilidade:</strong> <span id="disponibilidade"></span></p>
+    <p><strong>Preferência de troca:</strong> <span id="preferencia"></span></p>
+    <p id="desc"></p>
+    <div class="btns">
+      <button class="reject-btn" id="rejectBtn">Não quero</button>
+      <button class="match-btn" id="matchBtn">Dar Match</button>
+    </div>
+  </main>
+
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const id = parseInt(params.get("id"));
+
+    const books = [
+      { id:1, titulo:"A Sociedade do Anel", autor:"J.R.R. Tolkien", genero:"Ficção", local:"Batel - Curitiba", data:"29/07/1954", edicao:"1ª", estado:"Seminovo", defeito:"Capa desgastada", notas:"Muito bem conservado apesar da idade.", paginas:576, idioma:"Português", editora:"HarperCollins", isbn:"978-0261102354", preferencia:"Troca por fantasia épica", disponibilidade:"Disponível",img:"data:image/webp;base64,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",desc:"Primeiro volume da trilogia O Senhor dos Anéis." },
+      { id:2, titulo:"Dom Casmurro", autor:"Machado de Assis", genero:"Romance", local:"Centro - Curitiba", data:"01/01/1899", edicao:"3ª", estado:"Usado", defeito:"Páginas amareladas", notas:"Algumas anotações a lápis.", paginas:256, idioma:"Português", editora:"Editora Garnier", isbn:"978-8520934167", preferencia:"Troca por clássicos brasileiros", disponibilidade:"Disponível",img:"https://th.bing.com/th/id/OIP.ychiyIhMmNXDVyaU8lEjwgHaHa?w=186&h=186&c=7&r=0&o=7&cb=12&dpr=1.3&pid=1.7&rm=3",desc:"Clássico da literatura brasileira sobre Bentinho e Capitu." },
+      { id:3, titulo:"História do Brasil", autor:"Boris Fausto", genero:"História", local:"Cabral - Curitiba", data:"10/05/2015", edicao:"2ª", estado:"Novo", defeito:"Nenhum", notas:"Nunca foi aberto.", paginas:432, idioma:"Português", editora:"Edusp", isbn:"978-8531413533", preferencia:"Troca por história mundial", disponibilidade:"Disponível",        img:"https://www.bing.com/th?id=OPHS.KAXAoHVot%2bgmtQ474C474&o=5&pid=21.1&w=140&h=200&qlt=100&dpr=1,3&o=2&c=8&pcl=f5f5f5", desc:"Uma análise abrangente da história do Brasil." }
+    ];
+
+    const book = books.find(b => b.id===id);
+    if(book){
+      document.getElementById("img").src = book.img;
+      document.getElementById("title").textContent = book.titulo;
+      document.getElementById("author").textContent = book.autor;
+      document.getElementById("genre").textContent = book.genero;
+      document.getElementById("data").textContent = book.data;
+      document.getElementById("edicao").textContent = book.edicao;
+      document.getElementById("local").textContent = book.local;
+      document.getElementById("estado").textContent = book.estado;
+      document.getElementById("defeito").textContent = book.defeito;
+      document.getElementById("notas").textContent = book.notas;
+      document.getElementById("paginas").textContent = book.paginas;
+      document.getElementById("idioma").textContent = book.idioma;
+      document.getElementById("editora").textContent = book.editora;
+      document.getElementById("isbn").textContent = book.isbn;
+      document.getElementById("disponibilidade").textContent = book.disponibilidade;
+      document.getElementById("preferencia").textContent = book.preferencia;
+      document.getElementById("desc").textContent = book.desc;
+    }
+
+    document.getElementById("matchBtn").onclick = () => {
+      window.location.href = "conversas.html?bookId=" + id;
+    }
+    document.getElementById("rejectBtn").onclick = () => {
+      window.location.href = "catalogo.html";
+    }
+  </script>
+</body>
+</html>
