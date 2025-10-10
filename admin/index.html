@@ -4,8 +4,316 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Dashboard Admin</title>
+    <link rel="stylesheet" href="styles.css" />
+    <script src="script.js" defer></script>
   </head>
   <body>
-    <h1>Bem vindo ADMIN</h1>
+    <!-- * Header -->
+    <header class="header">
+      <div class="container">
+        <h1>Painel Administrativo</h1>
+        <div class="info-usuario">
+          <span id="nome-admin">Admin</span>
+          <button class="btn-logout" id="btn-logout">Sair</button>
+        </div>
+      </div>
+    </header>
+
+    <!-- * Barra de navegação -->
+    <nav class="nav-tabs">
+      <div class="container">
+        <button class="tab-btn active" data-tab="usuarios">
+          Gerenciar Usuários
+        </button>
+        <button class="tab-btn" data-tab="cadastro">Cadastrar Gestor</button>
+        <button class="tab-btn" data-tab="relatorios">Relatórios</button>
+      </div>
+    </nav>
+
+    <main class="main-content">
+      <div class="container">
+        <!-- * Seção: Gerenciar Usuários -->
+        <section id="section-usuarios" class="section active">
+          <div class="section-header">
+            <h2>Usuários Cadastrados</h2>
+            <div class="filters">
+              <input
+                type="text"
+                id="search-user"
+                placeholder="Buscar por nome ou email..."
+                class="input-search"
+              />
+              <select id="filter-type" class="select-filter">
+                <option value="">Todos os tipos</option>
+                <option value="comum">Comum</option>
+                <option value="gestor">Gestor</option>
+                <option value="admin">Admin</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="table-container">
+            <table class="users-table">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Nome</th>
+                  <th>Email</th>
+                  <th>CPF</th>
+                  <th>Tipo</th>
+                  <th>Status</th>
+                  <th>Data Cadastro</th>
+                  <th>Ações</th>
+                </tr>
+              </thead>
+              <tbody id="users-table-body">
+                <!-- * Dados serão inseridos via JavaScript -->
+              </tbody>
+            </table>
+          </div>
+
+          <div class="pagination">
+            <button id="btn-prev" class="btn-page" disabled>Anterior</button>
+            <span id="page-info">Página 1 de 1</span>
+            <button id="btn-next" class="btn-page">Próxima</button>
+          </div>
+        </section>
+
+        <!-- * Seção: Cadastrar Gestor -->
+        <section id="section-cadastro" class="section">
+          <div class="section-header">
+            <h2>Cadastrar Gestor</h2>
+          </div>
+
+          <form id="form-cadastro-gestor" class="form-card">
+            <div class="form-row">
+              <div class="form-group">
+                <label for="gestor-nome">Nome Completo</label>
+                <input type="text" id="gestor-nome" required />
+              </div>
+              <div class="form-group">
+                <label for="gestor-email">E-mail</label>
+                <input type="email" id="gestor-email" required />
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label for="gestor-cpf">CPF</label>
+                <input type="text" id="gestor-cpf" maxlength="14" required />
+              </div>
+              <div class="form-group">
+                <label for="gestor-telefone">Telefone</label>
+                <input type="tel" id="gestor-telefone" required />
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label for="gestor-cep">CEP</label>
+                <input type="text" id="gestor-cep" maxlength="9" required />
+              </div>
+              <div class="form-group">
+                <label for="gestor-numero">Número</label>
+                <input type="text" id="gestor-numero" required />
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="gestor-rua">Rua</label>
+              <input type="text" id="gestor-rua" readonly />
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label for="gestor-bairro">Bairro</label>
+                <input type="text" id="gestor-bairro" readonly />
+              </div>
+              <div class="form-group">
+                <label for="gestor-cidade">Cidade</label>
+                <input type="text" id="gestor-cidade" readonly />
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label for="gestor-senha">Senha</label>
+                <input type="password" id="gestor-senha" required />
+              </div>
+              <div class="form-group">
+                <label for="gestor-confirma-senha">Confirmar Senha</label>
+                <input type="password" id="gestor-confirma-senha" required />
+              </div>
+            </div>
+
+            <div class="form-actions">
+              <button type="reset" class="btn-secondary">Limpar</button>
+              <button type="submit" class="btn-primary">
+                Cadastrar Gestor
+              </button>
+            </div>
+          </form>
+        </section>
+
+        <!-- * Seção: Relatórios -->
+        <section id="section-relatorios" class="section">
+          <div class="section-header">
+            <h2>Relatórios de Trocas</h2>
+          </div>
+
+          <div class="form-card">
+            <div class="form-row">
+              <div class="form-group">
+                <label for="relatorio-mes">Mês</label>
+                <select id="relatorio-mes" required>
+                  <option value="">Selecione o mês</option>
+                  <option value="1">Janeiro</option>
+                  <option value="2">Fevereiro</option>
+                  <option value="3">Março</option>
+                  <option value="4">Abril</option>
+                  <option value="5">Maio</option>
+                  <option value="6">Junho</option>
+                  <option value="7">Julho</option>
+                  <option value="8">Agosto</option>
+                  <option value="9">Setembro</option>
+                  <option value="10">Outubro</option>
+                  <option value="11">Novembro</option>
+                  <option value="12">Dezembro</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label for="relatorio-ano">Ano</label>
+                <select id="relatorio-ano" required>
+                  <option value="">Selecione o ano</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <button id="btn-gerar-relatorio" class="btn-primary">
+                  Gerar Relatório
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div
+            id="relatorio-resultado"
+            class="relatorio-card"
+            style="display: none"
+          >
+            <h3>Resultado do Relatório</h3>
+            <div class="relatorio-stats">
+              <div class="stat-card">
+                <div class="stat-number" id="total-trocas">0</div>
+                <div class="stat-label">Total de Trocas</div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-number" id="trocas-concluidas">0</div>
+                <div class="stat-label">Trocas Concluídas</div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-number" id="trocas-pendentes">0</div>
+                <div class="stat-label">Trocas Pendentes</div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-number" id="trocas-canceladas">0</div>
+                <div class="stat-label">Trocas Canceladas</div>
+              </div>
+            </div>
+            <button id="btn-exportar-pdf" class="btn-secondary">
+              Exportar PDF
+            </button>
+          </div>
+        </section>
+      </div>
+    </main>
+
+    <!-- * Modal de Edição/Exclusão -->
+    <div id="modal-usuario" class="modal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3>Editar Usuário</h3>
+          <button class="modal-close" id="modal-close">&times;</button>
+        </div>
+        <div class="modal-body">
+          <form id="form-edit-usuario">
+            <input type="hidden" id="edit-id" />
+
+            <div class="form-group">
+              <label for="edit-nome">Nome</label>
+              <input type="text" id="edit-nome" required />
+            </div>
+
+            <div class="form-group">
+              <label for="edit-email">E-mail</label>
+              <input type="email" id="edit-email" required />
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label for="edit-cpf">CPF</label>
+                <input type="text" id="edit-cpf" required />
+              </div>
+              <div class="form-group">
+                <label for="edit-telefone">Telefone</label>
+                <input type="tel" id="edit-telefone" />
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label for="edit-tipo">Tipo de Usuário</label>
+                <select id="edit-tipo" required>
+                  <option value="comum">Comum</option>
+                  <option value="gestor">Gestor</option>
+                  <option value="admin">Admin</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label for="edit-status">Status</label>
+                <select id="edit-status" required>
+                  <option value="1">Ativo</option>
+                  <option value="0">Inativo</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="modal-actions">
+              <button type="button" class="btn-danger" id="btn-delete">
+                Excluir Usuário
+              </button>
+              <div>
+                <button type="button" class="btn-secondary" id="btn-cancel">
+                  Cancelar
+                </button>
+                <button type="submit" class="btn-primary">
+                  Salvar Alterações
+                </button>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- * Modal de Confirmação de Exclusão -->
+    <div id="modal-confirm" class="modal">
+      <div class="modal-content modal-small">
+        <div class="modal-header">
+          <h3>Confirmar Exclusão</h3>
+        </div>
+        <div class="modal-body">
+          <p>Tem certeza que deseja excluir este usuário?</p>
+          <p class="warning-text">Esta ação não pode ser desfeita.</p>
+        </div>
+        <div class="modal-actions">
+          <button class="btn-secondary" id="btn-confirm-cancel">
+            Cancelar
+          </button>
+          <button class="btn-danger" id="btn-confirm-delete">
+            Confirmar Exclusão
+          </button>
+        </div>
+      </div>
+    </div>
   </body>
 </html>

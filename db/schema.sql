@@ -10,7 +10,7 @@ CREATE TABLE Endereco (
     rua VARCHAR(100) NOT NULL,
     numero VARCHAR(20) NOT NULL,
     bairro VARCHAR(50) NOT NULL,
-    estado VARCHAR(20) NOT NULL
+    cidade VARCHAR(20) NOT NULL
 );
 
 CREATE TABLE Autor (
@@ -39,6 +39,11 @@ CREATE TABLE Revisor (
     FOREIGN KEY (id_usuario) REFERENCES Usuario(id_usuario)
 );
 
+CREATE TABLE Genero (
+    id_genero INT AUTO_INCREMENT PRIMARY KEY,
+    nome VARCHAR(50) NOT NULL UNIQUE
+);
+
 CREATE TABLE Livro (
     id_livro INT AUTO_INCREMENT PRIMARY KEY,
     titulo VARCHAR(150) NOT NULL,
@@ -46,15 +51,16 @@ CREATE TABLE Livro (
     ano_publicacao SMALLINT NOT NULL,
     id_autor INT NOT NULL,
     isbn VARCHAR(20) NOT NULL UNIQUE,
-    genero VARCHAR(50) NOT NULL,
     estado VARCHAR(20) NOT NULL,
     data_postagem DATETIME NOT NULL,
     data_autorizacao DATETIME,
     id_usuario INT NOT NULL,
     id_revisor INT,
+    id_genero INT NOT NULL,
     FOREIGN KEY (id_autor) REFERENCES Autor(id_autor),
     FOREIGN KEY (id_usuario) REFERENCES Usuario(id_usuario),
-    FOREIGN KEY (id_revisor) REFERENCES Revisor(id_revisor)
+    FOREIGN KEY (id_revisor) REFERENCES Revisor(id_revisor),
+    FOREIGN KEY (id_genero) REFERENCES Genero(id_genero)
 );
 
 CREATE TABLE Usuario_telefone (

@@ -23,7 +23,7 @@ app.post("/api/cadastro", async (req, res) => {
       rua,
       numero,
       bairro,
-      estado,
+      cidade,
       telefone,
     } = req.body;
 
@@ -56,8 +56,8 @@ app.post("/api/cadastro", async (req, res) => {
 
     // Insere endereço
     const [enderecoResult] = await db.query(
-      "INSERT INTO endereco (cep, rua, numero, bairro, estado) VALUES (?, ?, ?, ?, ?)",
-      [cepLimpo, rua, numero, bairro, estado]
+      "INSERT INTO endereco (cep, rua, numero, bairro, cidade) VALUES (?, ?, ?, ?, ?)",
+      [cepLimpo, rua, numero, bairro, cidade]
     );
     const id_endereco = enderecoResult.insertId;
 
