@@ -39,38 +39,10 @@ function initTabs() {
 // * ==================== CARREGAMENTO DE USUÁRIOS ====================
 async function loadUsers() {
   try {
-    // TODO: Substituir por chamada à API (Váriavel allUsers somente de exemplo)
-
-    allUsers = [
-      {
-        id_usuario: 1,
-        nome: "João Silva",
-        email: "joao@email.com",
-        cpf: "12345678901",
-        tipo_usuario: "comum",
-        status: 1,
-        data_cadastro: "2024-01-15 10:30:00",
-      },
-      {
-        id_usuario: 2,
-        nome: "Maria Santos",
-        email: "maria@email.com",
-        cpf: "98765432100",
-        tipo_usuario: "gestor",
-        status: 1,
-        data_cadastro: "2024-02-20 14:20:00",
-      },
-      {
-        id_usuario: 3,
-        nome: "Pedro Oliveira",
-        email: "pedro@email.com",
-        cpf: "45678912300",
-        tipo_usuario: "admin  ",
-        status: 0,
-        data_cadastro: "2024-03-10 09:15:00",
-      },
-    ];
-
+    const response = await fetch("/api/users");
+    const data = await response.json();
+    allUsers = data.users;
+    console.log("Usuários carregados:", allUsers);
     filteredUsers = [...allUsers];
     renderUsers();
   } catch (error) {
@@ -302,15 +274,17 @@ async function handleGestorSubmit(e) {
   };
 
   try {
-    // TODO: Substituir por chamada à API
-    // const response = await fetch('/api/cadastro-gestor', {
-    //   method: 'POST',
-    //   headers: { 'Content-Type': 'application/json' },
-    //   body: JSON.stringify(gestorData)
-    // });
-    // const data = await response.json();
+    const response = await fetch("/api/cadastro-gestor", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(gestorData),
+    });
+    const data = await response.json();
 
-    console.log("Dados do gestor:", gestorData);
+    if (!data.success) {
+      alert(data.message || "Erro ao cadastrar gestor");
+      return;
+    }
     alert("Gestor cadastrado com sucesso!");
     e.target.reset();
     loadUsers(); // Recarrega a lista
@@ -335,18 +309,21 @@ async function handleEditSubmit(e) {
   };
 
   try {
-    // TODO: Substituir por sua chamada à API
-    // const response = await fetch('/api/users/' + userData.id, {
-    //   method: 'PUT',
-    //   headers: { 'Content-Type': 'application/json' },
-    //   body: JSON.stringify(userData)
-    // });
-    // const data = await response.json();
+    const response = await fetch("/api/atualizar-usuario/" + userData.id, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(userData),
+    });
 
-    console.log("Dados editados:", userData);
+    const data = await response.json();
+
+    if (!data.success) {
+      alert(data.message || "Erro ao atualizar usuário");
+      return;
+    }
     alert("Usuário atualizado com sucesso!");
     closeModal();
-    loadUsers(); // Recarrega a lista
+    loadUsers();
   } catch (error) {
     console.error("Erro ao editar usuário:", error);
     alert("Erro ao editar usuário");
@@ -360,17 +337,22 @@ async function handleDeleteUser() {
   }
 
   try {
-    // TODO: Substituir por sua chamada à API
-    // const response = await fetch('/api/users/' + currentUserId, {
-    //   method: 'DELETE'
-    // });
-    // const data = await response.json();
+    const response = await fetch("/api/deletar-usuario/" + currentUserId, {
+      method: "DELETE",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ id: currentUserId }),
+    });
+    const data = await response.json();
 
-    console.log("Deletando usuário:", currentUserId);
+    if (!data.success) {
+      alert(data.message || "Erro ao excluir usuário");
+      return;
+    }
+
     alert("Usuário excluído com sucesso!");
     closeConfirmModal();
     closeModal();
-    loadUsers(); // Recarrega a lista
+    loadUsers();
   } catch (error) {
     console.error("Erro ao excluir usuário:", error);
     alert("Erro ao excluir usuário");
@@ -459,6 +441,13 @@ async function buscarCEP(prefix) {
 
 // ==================== UTILITÁRIOS ====================
 function formatCPF(cpf) {
+  if (!cpf) {
+    return "";
+  }
+  cpf = cpf.toString().replace(/\D/g, "");
+  if (cpf.length !== 11) {
+    return cpf;
+  }
   return cpf.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, "$1.$2.$3-$4");
 }
 
