@@ -259,7 +259,7 @@ app.put("/api/atualizar-usuario/:id", async (req, res) => {
       );
 
       res
-        .status(204)
+        .status(200)
         .json({ success: true, message: "Usuário atualizado com sucesso!" });
     }
   } catch (err) {
@@ -283,7 +283,7 @@ app.delete("/api/deletar-usuario/:id", async (req, res) => {
     await db.query("DELETE FROM usuario WHERE id_usuario = ?", [userId]);
 
     res
-      .status(204)
+      .status(200)
       .json({ success: true, message: "Usuário deletado com sucesso!" });
   } catch (err) {
     console.error(err);

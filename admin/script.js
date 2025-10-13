@@ -316,6 +316,7 @@ async function handleEditSubmit(e) {
     });
 
     const data = await response.json();
+    console.log("Resposta da atualização:", data);
 
     if (!data.success) {
       alert(data.message || "Erro ao atualizar usuário");
