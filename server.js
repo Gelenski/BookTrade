@@ -11,7 +11,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 app.use(express.static(__dirname));
 
-// * Rota de cadastro
+// * Rota de cadastro de usuários (PADRÃO)
 app.post("/api/cadastro", async (req, res) => {
   try {
     const {
@@ -164,6 +164,7 @@ app.get("/api/users", async (req, res) => {
   }
 });
 
+// * Rota de cadastro de gestores (ADMIN)
 app.post("/api/cadastro-gestor", async (req, res) => {
   try {
     const {
@@ -241,6 +242,7 @@ app.post("/api/cadastro-gestor", async (req, res) => {
   }
 });
 
+// * Rota de atualização de usuário (ADMIN)
 app.put("/api/atualizar-usuario/:id", async (req, res) => {
   try {
     const userId = req.params.id;
@@ -270,6 +272,7 @@ app.put("/api/atualizar-usuario/:id", async (req, res) => {
   }
 });
 
+// * Rota de deleção de usuário (ADMIN)
 app.delete("/api/deletar-usuario/:id", async (req, res) => {
   try {
     const userId = req.params.id;
@@ -293,7 +296,10 @@ app.delete("/api/deletar-usuario/:id", async (req, res) => {
   }
 });
 
-// Testa a conexão e inicia o servidor
+// TODO: Rota de geração de relatório (ADMIN)
+// app.get("/api/relatorio", async (req, res) => {});
+
+// * Testa a conexão e inicia o servidor
 db.getConnection()
   .then((conn) => {
     console.log("Conexão com o banco estabelecida!");
