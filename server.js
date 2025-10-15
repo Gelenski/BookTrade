@@ -164,8 +164,8 @@ app.get("/api/users", async (req, res) => {
   }
 });
 
-// * Rota de cadastro de gestores (ADMIN)
-app.post("/api/cadastro-gestor", async (req, res) => {
+// * Rota de cadastro de revisores (ADMIN)
+app.post("/api/cadastro-revisor", async (req, res) => {
   try {
     const {
       nome,
@@ -215,7 +215,7 @@ app.post("/api/cadastro-gestor", async (req, res) => {
     const id_endereco = enderecoResult.insertId;
 
     // Insere usuário
-    const tipo_usuario = "gestor";
+    const tipo_usuario = "revisor";
     const [usuarioResult] = await db.query(
       "INSERT INTO usuario (nome, email, cpf, senha, tipo_usuario, id_endereco) VALUES (?, ?, ?, ?, ?, ?)",
       [nome, email, cpf, senhaHash, tipo_usuario, id_endereco]
@@ -232,7 +232,7 @@ app.post("/api/cadastro-gestor", async (req, res) => {
 
     res.json({
       success: true,
-      message: "Cadastro de gestor realizado com sucesso!",
+      message: "Cadastro de revisor realizado com sucesso!",
     });
   } catch (err) {
     console.error(err);

@@ -31,7 +31,10 @@ function initTabs() {
 
       // Adiciona active no selecionado
       btn.classList.add("active");
-      document.getElementById(`section-${targetTab}`).classList.add("active");
+      const targetSection = document.getElementById(`section-${targetTab}`);
+      if (targetSection) {
+        targetSection.classList.add("active");
+      }
     });
   });
 }
@@ -54,6 +57,10 @@ async function loadUsers() {
 // * ==================== RENDERIZAÇÃO DA TABELA ====================
 function renderUsers() {
   const tbody = document.getElementById("users-table-body");
+  if (!tbody) {
+    return;
+  }
+
   const start = (currentPage - 1) * usersPerPage;
   const end = start + usersPerPage;
   const usersToShow = filteredUsers.slice(start, end);
@@ -95,29 +102,47 @@ function renderUsers() {
 
 // * ==================== PAGINAÇÃO ====================
 function initPagination() {
-  document.getElementById("btn-prev").addEventListener("click", () => {
-    if (currentPage > 1) {
-      currentPage--;
-      renderUsers();
-    }
-  });
+  const btnPrev = document.getElementById("btn-prev");
+  const btnNext = document.getElementById("btn-next");
 
-  document.getElementById("btn-next").addEventListener("click", () => {
-    const totalPages = Math.ceil(filteredUsers.length / usersPerPage);
-    if (currentPage < totalPages) {
-      currentPage++;
-      renderUsers();
-    }
-  });
+  if (btnPrev) {
+    btnPrev.addEventListener("click", () => {
+      if (currentPage > 1) {
+        currentPage--;
+        renderUsers();
+      }
+    });
+  }
+
+  if (btnNext) {
+    btnNext.addEventListener("click", () => {
+      const totalPages = Math.ceil(filteredUsers.length / usersPerPage);
+      if (currentPage < totalPages) {
+        currentPage++;
+        renderUsers();
+      }
+    });
+  }
 }
 
 function updatePaginationInfo() {
-  const totalPages = Math.ceil(filteredUsers.length / usersPerPage) || 1;
-  document.getElementById("page-info").textContent =
-    `Página ${currentPage} de ${totalPages}`;
+  const pageInfo = document.getElementById("page-info");
+  const btnPrev = document.getElementById("btn-prev");
+  const btnNext = document.getElementById("btn-next");
 
-  document.getElementById("btn-prev").disabled = currentPage === 1;
-  document.getElementById("btn-next").disabled = currentPage === totalPages;
+  const totalPages = Math.ceil(filteredUsers.length / usersPerPage) || 1;
+
+  if (pageInfo) {
+    pageInfo.textContent = `Página ${currentPage} de ${totalPages}`;
+  }
+
+  if (btnPrev) {
+    btnPrev.disabled = currentPage === 1;
+  }
+
+  if (btnNext) {
+    btnNext.disabled = currentPage === totalPages;
+  }
 }
 
 // * ==================== FILTROS ====================
@@ -125,19 +150,28 @@ function initFilters() {
   const searchInput = document.getElementById("search-user");
   const typeFilter = document.getElementById("filter-type");
 
-  searchInput.addEventListener("input", applyFilters);
-  typeFilter.addEventListener("change", applyFilters);
+  if (searchInput) {
+    searchInput.addEventListener("input", applyFilters);
+  }
+
+  if (typeFilter) {
+    typeFilter.addEventListener("change", applyFilters);
+  }
 }
 
 function applyFilters() {
-  const searchTerm = document.getElementById("search-user").value.toLowerCase();
-  const typeFilter = document.getElementById("filter-type").value;
+  const searchInput = document.getElementById("search-user");
+  const typeFilter = document.getElementById("filter-type");
+
+  const searchTerm = searchInput ? searchInput.value.toLowerCase() : "";
+  const typeFilterValue = typeFilter ? typeFilter.value : "";
 
   filteredUsers = allUsers.filter((user) => {
     const matchesSearch =
       user.nome.toLowerCase().includes(searchTerm) ||
       user.email.toLowerCase().includes(searchTerm);
-    const matchesType = !typeFilter || user.tipo_usuario === typeFilter;
+    const matchesType =
+      !typeFilterValue || user.tipo_usuario === typeFilterValue;
 
     return matchesSearch && matchesType;
   });
@@ -154,27 +188,38 @@ function initModalHandlers() {
   const cancelBtn = document.getElementById("btn-cancel");
   const confirmCancelBtn = document.getElementById("btn-confirm-cancel");
 
-  closeBtn.addEventListener("click", closeModal);
-  cancelBtn.addEventListener("click", closeModal);
-  confirmCancelBtn.addEventListener("click", closeConfirmModal);
+  if (closeBtn) {
+    closeBtn.addEventListener("click", closeModal);
+  }
+
+  if (cancelBtn) {
+    cancelBtn.addEventListener("click", closeModal);
+  }
+
+  if (confirmCancelBtn) {
+    confirmCancelBtn.addEventListener("click", closeConfirmModal);
+  }
 
   // Fecha modal ao clicar fora
-  modal.addEventListener("click", (e) => {
-    if (e.target === modal) {
-      closeModal();
-    }
-  });
+  if (modal) {
+    modal.addEventListener("click", (e) => {
+      if (e.target === modal) {
+        closeModal();
+      }
+    });
+  }
 
-  modalConfirm.addEventListener("click", (e) => {
-    if (e.target === modalConfirm) {
-      closeConfirmModal();
-    }
-  });
+  if (modalConfirm) {
+    modalConfirm.addEventListener("click", (e) => {
+      if (e.target === modalConfirm) {
+        closeConfirmModal();
+      }
+    });
+  }
 }
 
-// ? A função abaixo é chamada no HTML das rows da tabela
-// eslint-disable-next-line no-unused-vars
-function openEditModal(userId) {
+// Função global para ser chamada pelo onclick no HTML
+window.openEditModal = function (userId) {
   const user = allUsers.find((u) => u.id_usuario === userId);
   if (!user) {
     return;
@@ -183,114 +228,157 @@ function openEditModal(userId) {
   currentUserId = userId;
 
   // Preenche o formulário
-  document.getElementById("edit-id").value = user.id_usuario;
-  document.getElementById("edit-nome").value = user.nome;
-  document.getElementById("edit-email").value = user.email;
-  document.getElementById("edit-cpf").value = formatCPF(user.cpf);
-  document.getElementById("edit-telefone").value = user.telefone || "";
-  document.getElementById("edit-tipo").value = user.tipo_usuario;
-  document.getElementById("edit-status").value = user.status;
+  const elements = {
+    "edit-id": user.id_usuario,
+    "edit-nome": user.nome,
+    "edit-email": user.email,
+    "edit-cpf": formatCPF(user.cpf),
+    "edit-telefone": user.telefone || "",
+    "edit-tipo": user.tipo_usuario,
+    "edit-status": user.status ? "1" : "0",
+  };
+
+  for (const [id, value] of Object.entries(elements)) {
+    const element = document.getElementById(id);
+    if (element) {
+      element.value = value;
+    }
+  }
 
   // Abre o modal
-  document.getElementById("modal-usuario").classList.add("active");
-}
+  const modal = document.getElementById("modal-usuario");
+  if (modal) {
+    modal.classList.add("active");
+  }
+};
 
 function closeModal() {
-  document.getElementById("modal-usuario").classList.remove("active");
+  const modal = document.getElementById("modal-usuario");
+  if (modal) {
+    modal.classList.remove("active");
+  }
   currentUserId = null;
 }
 
 function closeConfirmModal() {
-  document.getElementById("modal-confirm").classList.remove("active");
+  const modalConfirm = document.getElementById("modal-confirm");
+  if (modalConfirm) {
+    modalConfirm.classList.remove("active");
+  }
 }
 
 // ==================== FORMULÁRIOS ====================
 function initFormHandlers() {
   // Logout
-  document.getElementById("btn-logout").addEventListener("click", () => {
-    if (confirm("Deseja realmente sair?")) {
-      // TODO: Limpar sessão/token
-      window.location.href = "/login/index.html";
-    }
-  });
+  const btnLogout = document.getElementById("btn-logout");
+  if (btnLogout) {
+    btnLogout.addEventListener("click", () => {
+      if (confirm("Deseja realmente sair?")) {
+        window.location.href = "/login/index.html";
+      }
+    });
+  }
 
-  // Cadastro de Gestor
-  const formGestor = document.getElementById("form-cadastro-gestor");
-  formGestor.addEventListener("submit", handleGestorSubmit);
+  // Cadastro de Revisor
+  const formRevisor = document.getElementById("form-cadastro-revisor");
+  if (formRevisor) {
+    formRevisor.addEventListener("submit", handleRevisorSubmit);
+  }
 
-  // CEP do gestor
-  const cepInput = document.getElementById("gestor-cep");
-  cepInput.addEventListener("blur", () => buscarCEP("gestor"));
+  // CEP do revisor
+  const cepInput = document.getElementById("revisor-cep");
+  if (cepInput) {
+    cepInput.addEventListener("blur", () => buscarCEP("revisor"));
+  }
 
   // Edição de usuário
   const formEdit = document.getElementById("form-edit-usuario");
-  formEdit.addEventListener("submit", handleEditSubmit);
+  if (formEdit) {
+    formEdit.addEventListener("submit", handleEditSubmit);
+  }
 
   // Botão de deletar
-  document.getElementById("btn-delete").addEventListener("click", () => {
-    document.getElementById("modal-confirm").classList.add("active");
-  });
+  const btnDelete = document.getElementById("btn-delete");
+  if (btnDelete) {
+    btnDelete.addEventListener("click", () => {
+      const modalConfirm = document.getElementById("modal-confirm");
+      if (modalConfirm) {
+        modalConfirm.classList.add("active");
+      }
+    });
+  }
 
   // Confirmação de deleção
-  document
-    .getElementById("btn-confirm-delete")
-    .addEventListener("click", handleDeleteUser);
+  const btnConfirmDelete = document.getElementById("btn-confirm-delete");
+  if (btnConfirmDelete) {
+    btnConfirmDelete.addEventListener("click", handleDeleteUser);
+  }
 
   // Geração de relatório
-  document
-    .getElementById("btn-gerar-relatorio")
-    .addEventListener("click", handleGenerateReport);
+  const btnGerarRelatorio = document.getElementById("btn-gerar-relatorio");
+  if (btnGerarRelatorio) {
+    btnGerarRelatorio.addEventListener("click", handleGenerateReport);
+  }
 
   // Exportar PDF
-  document
-    .getElementById("btn-exportar-pdf")
-    .addEventListener("click", handleExportPDF);
+  const btnExportarPdf = document.getElementById("btn-exportar-pdf");
+  if (btnExportarPdf) {
+    btnExportarPdf.addEventListener("click", handleExportPDF);
+  }
 }
 
-// ==================== CADASTRO DE GESTOR ====================
-async function handleGestorSubmit(e) {
+// ==================== CADASTRO DE REVISOR ====================
+async function handleRevisorSubmit(e) {
   e.preventDefault();
 
-  const senha = document.getElementById("gestor-senha").value;
-  const confirmaSenha = document.getElementById("gestor-confirma-senha").value;
+  const senhaInput = document.getElementById("revisor-senha");
+  const confirmaSenhaInput = document.getElementById("revisor-confirma-senha");
+
+  if (!senhaInput || !confirmaSenhaInput) {
+    alert("Erro ao validar senhas");
+    return;
+  }
+
+  const senha = senhaInput.value;
+  const confirmaSenha = confirmaSenhaInput.value;
 
   if (senha !== confirmaSenha) {
     alert("As senhas não coincidem!");
     return;
   }
 
-  const gestorData = {
-    nome: document.getElementById("gestor-nome").value,
-    email: document.getElementById("gestor-email").value,
-    cpf: document.getElementById("gestor-cpf").value.replace(/\D/g, ""),
-    telefone: document.getElementById("gestor-telefone").value,
-    cep: document.getElementById("gestor-cep").value.replace(/\D/g, ""),
-    rua: document.getElementById("gestor-rua").value,
-    numero: document.getElementById("gestor-numero").value,
-    bairro: document.getElementById("gestor-bairro").value,
-    cidade: document.getElementById("gestor-cidade").value,
+  const revisorData = {
+    nome: document.getElementById("revisor-nome")?.value || "",
+    email: document.getElementById("revisor-email")?.value || "",
+    cpf: document.getElementById("revisor-cpf")?.value.replace(/\D/g, "") || "",
+    telefone: document.getElementById("revisor-telefone")?.value || "",
+    cep: document.getElementById("revisor-cep")?.value.replace(/\D/g, "") || "",
+    rua: document.getElementById("revisor-rua")?.value || "",
+    numero: document.getElementById("revisor-numero")?.value || "",
+    bairro: document.getElementById("revisor-bairro")?.value || "",
+    cidade: document.getElementById("revisor-cidade")?.value || "",
     senha: senha,
-    tipo_usuario: "gestor",
+    tipo_usuario: "revisor",
   };
 
   try {
-    const response = await fetch("/api/cadastro-gestor", {
+    const response = await fetch("/api/cadastro-revisor", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(gestorData),
+      body: JSON.stringify(revisorData),
     });
     const data = await response.json();
 
     if (!data.success) {
-      alert(data.message || "Erro ao cadastrar gestor");
+      alert(data.message || "Erro ao cadastrar revisor");
       return;
     }
-    alert("Gestor cadastrado com sucesso!");
+    alert("Revisor cadastrado com sucesso!");
     e.target.reset();
-    loadUsers(); // Recarrega a lista
+    loadUsers();
   } catch (error) {
-    console.error("Erro ao cadastrar gestor:", error);
-    alert("Erro ao cadastrar gestor");
+    console.error("Erro ao cadastrar revisor:", error);
+    alert("Erro ao cadastrar revisor");
   }
 }
 
@@ -299,13 +387,13 @@ async function handleEditSubmit(e) {
   e.preventDefault();
 
   const userData = {
-    id: document.getElementById("edit-id").value,
-    nome: document.getElementById("edit-nome").value,
-    email: document.getElementById("edit-email").value,
-    cpf: document.getElementById("edit-cpf").value.replace(/\D/g, ""),
-    telefone: document.getElementById("edit-telefone").value,
-    tipo_usuario: document.getElementById("edit-tipo").value,
-    status: document.getElementById("edit-status").value,
+    id: document.getElementById("edit-id")?.value || "",
+    nome: document.getElementById("edit-nome")?.value || "",
+    email: document.getElementById("edit-email")?.value || "",
+    cpf: document.getElementById("edit-cpf")?.value.replace(/\D/g, "") || "",
+    telefone: document.getElementById("edit-telefone")?.value || "",
+    tipo_usuario: document.getElementById("edit-tipo")?.value || "",
+    status: parseInt(document.getElementById("edit-status")?.value || "1"),
   };
 
   try {
@@ -340,8 +428,6 @@ async function handleDeleteUser() {
   try {
     const response = await fetch("/api/deletar-usuario/" + currentUserId, {
       method: "DELETE",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ id: currentUserId }),
     });
     const data = await response.json();
 
@@ -363,6 +449,10 @@ async function handleDeleteUser() {
 // ==================== RELATÓRIOS ====================
 function populateYearSelect() {
   const select = document.getElementById("relatorio-ano");
+  if (!select) {
+    return;
+  }
+
   const currentYear = new Date().getFullYear();
 
   for (let year = currentYear; year >= currentYear - 5; year--) {
@@ -374,8 +464,16 @@ function populateYearSelect() {
 }
 
 async function handleGenerateReport() {
-  const mes = document.getElementById("relatorio-mes").value;
-  const ano = document.getElementById("relatorio-ano").value;
+  const mesInput = document.getElementById("relatorio-mes");
+  const anoInput = document.getElementById("relatorio-ano");
+
+  if (!mesInput || !anoInput) {
+    alert("Erro ao acessar campos do relatório");
+    return;
+  }
+
+  const mes = mesInput.value;
+  const ano = anoInput.value;
 
   if (!mes || !ano) {
     alert("Por favor, selecione o mês e o ano");
@@ -396,12 +494,24 @@ async function handleGenerateReport() {
     };
 
     // Exibe o resultado
-    document.getElementById("total-trocas").textContent = data.total;
-    document.getElementById("trocas-concluidas").textContent = data.concluidas;
-    document.getElementById("trocas-pendentes").textContent = data.pendentes;
-    document.getElementById("trocas-canceladas").textContent = data.canceladas;
+    const elements = {
+      "total-trocas": data.total,
+      "trocas-concluidas": data.concluidas,
+      "trocas-pendentes": data.pendentes,
+      "trocas-canceladas": data.canceladas,
+    };
 
-    document.getElementById("relatorio-resultado").style.display = "block";
+    for (const [id, value] of Object.entries(elements)) {
+      const element = document.getElementById(id);
+      if (element) {
+        element.textContent = value;
+      }
+    }
+
+    const resultado = document.getElementById("relatorio-resultado");
+    if (resultado) {
+      resultado.style.display = "block";
+    }
   } catch (error) {
     console.error("Erro ao gerar relatório:", error);
     alert("Erro ao gerar relatório");
@@ -417,6 +527,10 @@ function handleExportPDF() {
 // ==================== BUSCA CEP ====================
 async function buscarCEP(prefix) {
   const cepInput = document.getElementById(`${prefix}-cep`);
+  if (!cepInput) {
+    return;
+  }
+
   const cep = cepInput.value.replace(/\D/g, "");
 
   if (cep.length !== 8) {
@@ -428,9 +542,19 @@ async function buscarCEP(prefix) {
     const data = await response.json();
 
     if (!data.erro) {
-      document.getElementById(`${prefix}-rua`).value = data.logradouro;
-      document.getElementById(`${prefix}-bairro`).value = data.bairro;
-      document.getElementById(`${prefix}-cidade`).value = data.localidade;
+      const ruaInput = document.getElementById(`${prefix}-rua`);
+      const bairroInput = document.getElementById(`${prefix}-bairro`);
+      const cidadeInput = document.getElementById(`${prefix}-cidade`);
+
+      if (ruaInput) {
+        ruaInput.value = data.logradouro;
+      }
+      if (bairroInput) {
+        bairroInput.value = data.bairro;
+      }
+      if (cidadeInput) {
+        cidadeInput.value = data.localidade;
+      }
     } else {
       alert("CEP não encontrado");
     }
