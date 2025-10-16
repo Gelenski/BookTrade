@@ -69,3 +69,9 @@ p {
   color: #666;
   margin-bottom: 20px;
 }
+
+#mensagem {
+  padding: 10px;
+  text-align: center;
+  border-radius: 5px;
+}

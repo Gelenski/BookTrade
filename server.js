@@ -2,9 +2,19 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const db = require("./db/database");
 const bcrypt = require("bcrypt");
+const dotenv = require('dotenv');
+const path = require('path');
+const  enviarEmail  = require('./utils/email');
+const { gerarToken, calcularExpiracao } = require('./utils/token');
+dotenv.config();
+
 
 const app = express();
 const PORT = 3000;
+
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.json());
+app.use(express.static(__dirname));
 
 // Configurações do Express (ANTES das rotas)
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -162,6 +172,100 @@ app.get("/api/users", async (req, res) => {
     });
   }
 });
+
+
+
+// Rota de recuperação de senha
+app.post('/recuperar', async (req, res) => {
+  try {
+    const { email } = req.body;
+
+    // Verifica se o usuário existe
+    const [usuarios] = await db.query(
+      'SELECT id_usuario, nome FROM usuario WHERE email = ?',
+      [email]
+    );
+
+    if (usuarios.length === 0) {
+      return res.status(404).json({ message: 'E-mail não encontrado.' });
+    }
+
+    const usuario = usuarios[0];
+
+    // Gera token e expiração
+    const token = gerarToken();
+    const agora = new Date();
+    const expira = calcularExpiracao(1); // 1 hora
+
+    // Salva na tabela de recuperação
+    await db.query(
+      'INSERT INTO Recuperacao_senha (token, data_solicitacao, data_expiracao, status, id_usuario) VALUES (?, ?, ?, ?, ?)',
+      [token, agora, expira, 0, usuario.id_usuario]
+    );
+
+    // Cria link para redefinir senha
+    const link = `http://localhost:3000/redefinir/index.html?token=${token}`;
+
+    // Envia e-mail
+    await enviarEmail(
+      email,
+      'Recuperação de Senha - BookTrade',
+      `<p>Olá ${usuario.nome}, clique no link abaixo para redefinir sua senha:</p>
+       <a href="${link}">${link}</a>
+       <p>O link expira em 1 hora.</p>`
+    );
+
+    res.json({ message: 'E-mail de recuperação enviado.' });
+    console.log(`Token de recuperação gerado para: ${email}`);
+  } catch (err) {
+    console.error('Erro na recuperação de senha:', err);
+    res.status(500).json({ message: 'Erro ao enviar e-mail de recuperação.' });
+  }
+});
+
+
+// Rota de redefinição de senha
+app.post('/redefinir', async (req, res) => {
+  try {
+    const { token, novaSenha } = req.body;
+
+    // Verifica se o token existe, está válido e não expirou
+    const [recuperacoes] = await db.query(
+      'SELECT * FROM Recuperacao_senha WHERE token = ? AND data_expiracao > NOW() AND status = 0',
+      [token]
+    );
+
+    if (recuperacoes.length === 0) {
+      return res.status(400).json({ message: 'Token inválido ou expirado.' });
+    }
+
+    const recuperacao = recuperacoes[0];
+
+    // Criptografa a nova senha
+    const senhaHash = await bcrypt.hash(novaSenha, 10);
+
+    // Atualiza senha do usuário
+    await db.query(
+      'UPDATE usuario SET senha = ? WHERE id_usuario = ?',
+      [senhaHash, recuperacao.id_usuario]
+    );
+
+    // Marca token como usado
+    await db.query(
+      'UPDATE Recuperacao_senha SET status = 1 WHERE id_recuperacao = ?',
+      [recuperacao.id_recuperacao]
+    );
+
+    res.json({ message: 'Senha redefinida com sucesso!' });
+    console.log(`Senha redefinida para usuário ID: ${recuperacao.id_usuario}`);
+  } catch (err) {
+    console.error('Erro ao redefinir senha:', err);
+    res.status(500).json({ message: 'Erro ao redefinir senha.' });
+  }
+});
+
+
+
 
 // Testa a conexão e inicia o servidor
 db.getConnection()
