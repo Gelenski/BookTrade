@@ -3,7 +3,7 @@ const bodyParser = require("body-parser");
 const db = require("./db/database");
 const bcrypt = require("bcrypt");
 const dotenv = require("dotenv");
-const path = require("path");
+
 const enviarEmail = require("./utils/email");
 const { gerarToken, calcularExpiracao } = require("./utils/token");
 dotenv.config();
@@ -461,6 +461,11 @@ app.put("/api/atualizar-usuario/:id", async (req, res) => {
 app.delete("/api/deletar-usuario/:id", async (req, res) => {
   try {
     const userId = req.params.id;
+
+    // Deleta recuperação de senha
+    await db.query("DELETE FROM recuperacao_senha WHERE id_usuario = ?", [
+      userId,
+    ]);
 
     // Deleta telefone
     await db.query("DELETE FROM usuario_telefone WHERE id_usuario = ?", [

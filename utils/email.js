@@ -1,12 +1,12 @@
-const nodemailer = require('nodemailer');
-require('dotenv').config();
+const nodemailer = require("nodemailer");
+require("dotenv").config();
 
 const transporter = nodemailer.createTransport({
-  service: 'gmail',
+  service: "gmail",
   auth: {
     user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS
-  }
+    pass: process.env.EMAIL_PASS,
+  },
 });
 
 async function enviarEmail(destinatario, assunto, mensagemHTML) {
@@ -14,15 +14,15 @@ async function enviarEmail(destinatario, assunto, mensagemHTML) {
     from: process.env.EMAIL_USER,
     to: destinatario,
     subject: assunto,
-    html: mensagemHTML
+    html: mensagemHTML,
   };
 
   try {
     await transporter.sendMail(mailOptions);
-    console.log('📨 E-mail enviado com sucesso!');
+    console.log("📨 E-mail enviado com sucesso!");
     return true;
   } catch (error) {
-    console.error('❌ Erro ao enviar e-mail:', error);
+    console.error("❌ Erro ao enviar e-mail:", error);
     return false;
   }
 }
