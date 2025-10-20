@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Recuperar senha</title>
     <link rel="stylesheet" href="styles.css">
+    <script src="script.js" defer></script>
 </head>
 <body>
     <form id="recuperarform" class="recuperar-form">
@@ -13,9 +14,10 @@
         <p> Informe seu email para receber o link de recuperação</p>
 
         <label for="email">E-mail</label>
-        <input type="email" required>
+        <input type="email" id="email">
         
         <button type="submit">Enviar link de recuperação</button>
+        <div id="mensagem"></div>
 
     </form>
 </body>
