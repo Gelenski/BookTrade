@@ -1,7 +1,7 @@
 const cepInput = document.querySelector('input[name="cep"]');
 const ruaInput = document.querySelector('input[name="rua"]');
 const bairroInput = document.querySelector('input[name="bairro"]');
-const estadoInput = document.querySelector('input[name="estado"]');
+const estadoInput = document.querySelector('input[name="cidade"]');
 
 cepInput.addEventListener("blur", async () => {
   const cep = cepInput.value.replace(/\D/g, "");
