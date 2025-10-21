@@ -1,0 +1,131 @@
+/* Um pouco de estilo para facilitar */
+body {
+  font-family: Arial, sans-serif;
+  background: #f9fafb;
+  margin: 0;
+}
+
+header {
+  background: white;
+  padding: 1rem;
+  box-shadow: 0 1px 3px rgb(0 0 0 / 0.1);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+header a {
+  margin: 0 0.5rem;
+  text-decoration: none;
+  color: #555;
+}
+
+header a:hover {
+  color: #000;
+}
+
+main {
+  max-width: 1200px;
+  margin: 2rem auto;
+  padding: 0 1rem;
+}
+
+input,
+select {
+  padding: 0.5rem;
+  font-size: 1rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.book-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+.book-card {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  transition: box-shadow 0.3s;
+}
+
+.book-card:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.book-image {
+  width: 100%;
+  aspect-ratio: 2 / 3;
+  object-fit: cover;
+}
+
+.book-content {
+  padding: 1rem;
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.book-title {
+  font-weight: bold;
+  margin-bottom: 0.25rem;
+  font-size: 1rem;
+}
+
+.book-author {
+  font-size: 0.9rem;
+  color: #555;
+  margin-bottom: 0.5rem;
+}
+
+.book-meta {
+  font-size: 0.8rem;
+  color: #777;
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 0.5rem;
+}
+
+.book-meta span:first-child {
+  background: #f3f4f6;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+}
+
+.book-owner {
+  font-size: 0.8rem;
+  color: #777;
+  margin-bottom: 1rem;
+}
+
+.btn-trade {
+  background: #2563eb;
+  color: white;
+  border: none;
+  padding: 0.5rem;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  font-size: 0.9rem;
+}
+
+.btn-trade:hover {
+  background: #1d4ed8;
+}
+
+.no-results {
+  text-align: center;
+  color: #888;
+  margin-top: 3rem;
+}
+
+h2 {
+  font-size: 1.875rem;
+  margin-bottom: 1.5rem;
+}

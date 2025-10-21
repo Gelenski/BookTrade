@@ -1,11 +1,11 @@
 {
-	"folders": [
-		{
-			"path": "../.."
-		},
-		{
-			"path": "../../../booktrader"
-		}
-	],
-	"settings": {}
+  "folders": [
+    {
+      "path": "../..",
+    },
+    {
+      "path": "../../../booktrader",
+    },
+  ],
+  "settings": {},
 }
