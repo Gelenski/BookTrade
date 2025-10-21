@@ -3,18 +3,135 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>BookTrade</title>
+    <title>BookTrade - Troca de Livros</title>
     <link rel="stylesheet" href="style.css" />
   </head>
   <body>
+    <!-- Header -->
     <header>
-      <div style="display: flex; align-items: center; gap: 0.5rem">
-        <svg
-          style="width: 2rem; height: 2rem; color: #2563eb"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
+      <div class="container">
+        <div class="header-content">
+          <div class="logo">
+            <svg class="icon-book" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"
+              ></path>
+            </svg>
+            <h1>BookTrade</h1>
+          </div>
+          <nav class="desktop-nav">
+            <a href="#">Catálogo</a>
+            <a href="#">Meus Livros</a>
+            <a href="#">Trocas</a>
+          </nav>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="container">
+      <!-- Title and Stats -->
+      <div class="page-header">
+        <h2>Catálogo de Livros</h2>
+        <p id="bookStats" class="stats-text"></p>
+      </div>
+
+      <!-- Search and Filters -->
+      <div class="filters-container">
+        <div class="filters-row">
+          <!-- Search Input -->
+          <div class="search-wrapper">
+            <svg class="search-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+              ></path>
+            </svg>
+            <input
+              id="searchInput"
+              type="text"
+              placeholder="Buscar por título ou autor..."
+            />
+          </div>
+
+          <!-- Filter Toggle (Mobile) -->
+          <button id="filterToggle" class="btn-filter-toggle mobile-only">
+            <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"
+              ></path>
+            </svg>
+            Filtros
+          </button>
+
+          <!-- Desktop Filters -->
+          <div class="desktop-filters">
+            <select id="genreSelect" class="select-filter">
+              <option value="all">Todos os gêneros</option>
+            </select>
+
+            <select id="sortSelect" class="select-filter">
+              <option value="title">Título A-Z</option>
+              <option value="author">Autor A-Z</option>
+              <option value="year-new">Mais Recentes</option>
+              <option value="year-old">Mais Antigos</option>
+              <option value="genre">Gênero</option>
+            </select>
+
+            <div class="view-toggle">
+              <button id="gridViewBtn" class="btn-view active">
+                <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"
+                  ></path>
+                </svg>
+              </button>
+              <button id="listViewBtn" class="btn-view">
+                <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M4 6h16M4 12h16M4 18h16"
+                  ></path>
+                </svg>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Mobile Filters -->
+        <div id="mobileFilters" class="mobile-filters" style="display: none">
+          <select id="genreSelectMobile" class="select-filter">
+            <option value="all">Todos os gêneros</option>
+          </select>
+          <select id="sortSelectMobile" class="select-filter">
+            <option value="title">Título A-Z</option>
+            <option value="author">Autor A-Z</option>
+            <option value="year-new">Mais Recentes</option>
+            <option value="year-old">Mais Antigos</option>
+            <option value="genre">Gênero</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Books Grid/List -->
+      <div id="bookList" class="book-list grid-view"></div>
+
+      <!-- No Results -->
+      <div id="noResults" class="no-results" style="display: none">
+        <svg class="icon-large" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path
             stroke-linecap="round"
             stroke-linejoin="round"
@@ -22,39 +139,114 @@
             d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"
           ></path>
         </svg>
-        <h1 style="margin: 0; font-size: 1.5rem">BookTrade</h1>
-      </div>
-      <nav>
-        <a href="#">Catálogo</a>
-        <a href="#">Meus Livros</a>
-        <a href="#">Trocas</a>
-      </nav>
-    </header>
-
-    <main>
-      <h2>Catálogo de Livros</h2>
-
-      <div style="margin-bottom: 1rem; display: flex; gap: 1rem">
-        <input
-          id="searchInput"
-          type="text"
-          placeholder="Buscar por título ou autor..."
-          style="flex: 1"
-        />
-        <select id="genreSelect" style="width: 200px">
-          <option value="all">Todos os gêneros</option>
-          <!-- opções adicionadas via JS -->
-        </select>
-      </div>
-
-      <div id="bookList" class="book-list">
-        <!-- livros renderizados aqui -->
-      </div>
-
-      <div id="noResults" class="no-results" style="display: none">
-        Nenhum livro encontrado com os filtros selecionados.
+        <p class="no-results-title">Nenhum livro encontrado</p>
+        <p class="no-results-subtitle">Tente ajustar os filtros ou busca</p>
       </div>
     </main>
+
+    <!-- Modal de Detalhes -->
+    <div id="bookModal" class="modal" style="display: none">
+      <div class="modal-content">
+        <!-- Header do Modal -->
+        <div class="modal-header">
+          <h3>Detalhes do Livro</h3>
+          <button id="closeModal" class="btn-close">
+            <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M6 18L18 6M6 6l12 12"
+              ></path>
+            </svg>
+          </button>
+        </div>
+
+        <!-- Conteúdo do Modal -->
+        <div class="modal-body">
+          <div class="modal-main">
+            <!-- Imagem do Livro -->
+            <div class="modal-image-wrapper">
+              <div id="modalBookImage" class="modal-book-image"></div>
+            </div>
+
+            <!-- Informações do Livro -->
+            <div class="modal-info">
+              <div class="modal-title-row">
+                <h4 id="modalBookTitle"></h4>
+                <button id="modalFavoriteBtn" class="btn-favorite">
+                  <svg class="icon-heart" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
+                    ></path>
+                  </svg>
+                </button>
+              </div>
+              <p id="modalBookAuthor" class="modal-author"></p>
+              <div id="modalBookTags" class="modal-tags"></div>
+              <p id="modalBookDescription" class="modal-description"></p>
+              <div id="modalBookDetails" class="modal-details"></div>
+            </div>
+          </div>
+
+          <!-- Informações do Dono -->
+          <div class="modal-section">
+            <h5 class="section-title">
+              <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+                ></path>
+              </svg>
+              Informações do Proprietário
+            </h5>
+            <div id="modalOwnerInfo" class="owner-info"></div>
+          </div>
+
+          <!-- Recomendações -->
+          <div id="modalRecommendations" class="modal-section" style="display: none">
+            <h5 class="section-title">Livros Relacionados</h5>
+            <div id="recommendationsList" class="recommendations-list"></div>
+          </div>
+
+          <!-- Formulário de Troca -->
+          <div class="modal-section">
+            <h5 class="section-title">
+              <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
+                ></path>
+              </svg>
+              Solicitar Troca
+            </h5>
+            <textarea
+              id="tradeMessage"
+              placeholder="Escreva uma mensagem para o proprietário... Conte qual livro você tem para oferecer em troca!"
+              class="trade-textarea"
+            ></textarea>
+            <button id="sendTradeBtn" class="btn-trade-send">
+              <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"
+                ></path>
+              </svg>
+              Enviar Proposta de Troca
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
 
     <script src="catalogo.js"></script>
   </body>
