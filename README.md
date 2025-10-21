@@ -371,9 +371,10 @@ Contribuições são sempre bem-vindas! Siga os passos abaixo:
 
 1. Faça um fork do projeto
 2. Crie uma branch para sua feature (`git checkout -b feature/MinhaFeature`)
-3. Commit suas mudanças (`git commit -m 'Add: nova feature'`)
-4. Push para a branch (`git push origin feature/MinhaFeature`)
-5. Abra um Pull Request
+3. Rode npm run prepare antes de fazer o commit
+4. Commit suas mudanças (`git commit -m 'Add: nova feature'`)
+5. Push para a branch (`git push origin feature/MinhaFeature`)
+6. Abra um Pull Request
 
 ### Padrão de commits
 
@@ -410,7 +411,7 @@ Este projeto está sob a licença ISC.
 
 ## 👨‍💻 Autor
 
-Desenvolvido por [Gelenski](https://github.com/Gelenski), [Adrian], [Gustavo] & [Gabriel].
+Desenvolvido por [Gelenski](https://github.com/Gelenski), [Adrian](https://github.com/adriankkj), [Gustavo] & [Gabriel].
 
 ## 📞 Suporte
 
