@@ -371,7 +371,7 @@ Contribuições são sempre bem-vindas! Siga os passos abaixo:
 
 1. Faça um fork do projeto
 2. Crie uma branch para sua feature (`git checkout -b feature/MinhaFeature`)
-3. Rode npm run prepare antes de fazer o commit
+3. Rode `npm run prepare` antes de fazer o commit
 4. Commit suas mudanças (`git commit -m 'Add: nova feature'`)
 5. Push para a branch (`git push origin feature/MinhaFeature`)
 6. Abra um Pull Request
