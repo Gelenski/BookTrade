@@ -1,12 +1,15 @@
 // ==================== VARIÁVEIS GLOBAIS ====================
 let currentPage = 1;
-const usersPerPage = 30;
+const usersPerPage = 20;
 let allUsers = [];
 let filteredUsers = [];
 let currentUserId = null;
+let currentUser = null;
 
 // ==================== INICIALIZAÇÃO ====================
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", async () => {
+  currentUser = await protegerPagina(["admin"]);
+  exibirNomeUsuario(currentUser, "nome-admin");
   initTabs();
   initModalHandlers();
   initFormHandlers();
@@ -42,7 +45,14 @@ function initTabs() {
 // * ==================== CARREGAMENTO DE USUÁRIOS ====================
 async function loadUsers() {
   try {
-    const response = await fetch("/api/users");
+    const response = await fetch("/api/users", { credentials: "include" });
+
+    if (response.status === 401) {
+      alert("Sessão expirada. Faça login novamente.");
+      window.location.href = "/login/index.html";
+      return;
+    }
+
     const data = await response.json();
     allUsers = data.users;
     console.log("Usuários carregados:", allUsers);
@@ -272,11 +282,7 @@ function initFormHandlers() {
   // Logout
   const btnLogout = document.getElementById("btn-logout");
   if (btnLogout) {
-    btnLogout.addEventListener("click", () => {
-      if (confirm("Deseja realmente sair?")) {
-        window.location.href = "/login/index.html";
-      }
-    });
+    btnLogout.addEventListener("click", handleLogout);
   }
 
   // Cadastro de Revisor
@@ -587,4 +593,77 @@ function formatDate(dateString) {
 
 function capitalizeFirst(str) {
   return str.charAt(0).toUpperCase() + str.slice(1);
+}
+
+async function handleLogout() {
+  if (!confirm("Deseja realmente sair?")) {
+    return;
+  }
+
+  try {
+    const response = await fetch("/api/logout", {
+      method: "POST",
+      credentials: "include",
+    });
+
+    const data = await response.json();
+
+    if (data.success) {
+      window.location.href = "/login/index.html";
+    } else {
+      window.location.href = "/login/index.html";
+    }
+  } catch (error) {
+    console.error("Erro ao fazer logout:", error);
+    window.location.href = "/login/index.html";
+  }
+}
+
+async function verificarSessao() {
+  try {
+    const response = await fetch("/api/verificar-sessao", {
+      method: "GET",
+      credentials: "include",
+    });
+
+    const data = await response.json();
+
+    if (data.success && data.autenticado) {
+      return data.usuario;
+    }
+    return null;
+  } catch (error) {
+    console.error("Erro ao verificar sessão:", error);
+    return null;
+  }
+}
+
+async function protegerPagina(tiposPermitidos = []) {
+  const usuario = await verificarSessao();
+
+  if (!usuario) {
+    alert("Você precisa fazer login para acessar esta página");
+    window.location.href = "/login/index.html";
+    return null;
+  }
+
+  if (tiposPermitidos.length > 0 && !tiposPermitidos.includes(usuario.tipo)) {
+    alert("Você não tem permissão para acessar esta página");
+    const rotas = {
+      admin: "/admin/index.html",
+      revisor: "/gestor/index.html",
+      comum: "/user/index.html",
+    };
+    window.location.href = rotas[usuario.tipo] || "/login/index.html";
+    return null;
+  }
+
+  return usuario;
+}
+
+function exibirNomeUsuario(usuario, elementoId) {
+  const elemento = document.getElementById(elementoId);
+  if (elemento && usuario) {
+    elemento.textContent = usuario.nome;
+  }
 }

@@ -11,8 +11,13 @@ document
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email }),
+        credentials: "include",
       });
-
+      if (response.status === 401 || response.status === 403) {
+        alert("Sessão expirada ou sem permissão. Faça login novamente.");
+        window.location.href = "/login/index.html";
+        return;
+      }
       const data = await response.json();
       mensagem.textContent = data.message;
       mensagem.style.color = response.ok ? "green" : "red";
