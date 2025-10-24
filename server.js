@@ -12,10 +12,6 @@ dotenv.config();
 const app = express();
 const PORT = process.env.SERVER_PORT;
 
-app.use(bodyParser.urlencoded({ extended: true }));
-app.use(bodyParser.json());
-app.use(express.static(__dirname));
-
 // Configuração do body-parser
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
