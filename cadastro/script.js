@@ -91,4 +91,24 @@ form.addEventListener("submit", async (e) => {
     submitButton.disabled = false;
     submitButton.textContent = "Cadastrar-se";
   }
+
+  try {
+    const response = await fetch("/api/login", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ email: formData.email, password: formData.senha }),
+      credentials: "include",
+    });
+    const data = await response.json();
+
+    if (data.success) {
+      window.location.href = "/user/index.html";
+    } else {
+      console.error("Login automático falhou após cadastro.");
+    }
+  } catch (error) {
+    console.error("Erro ao logar após cadastro:", error);
+  }
 });
