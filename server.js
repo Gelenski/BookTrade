@@ -629,6 +629,7 @@ app.post("/api/cadastrar-livro", verificarAutenticacao, async (req, res) => {
   }
 });
 
+// * Rota de listagem de livros pendentes de aprovação (REVISOR)
 app.get(
   "/api/livros-pendentes",
   verificarAutenticacao,
@@ -655,6 +656,40 @@ app.get(
     }
   }
 );
+
+// * Rota de listagem de livros aprovados (PÚBLICA)
+app.get("/api/livros", async (req, res) => {
+  try {
+    const [results] = await db.query(
+      `SELECT 
+        l.id_livro,
+        l.titulo,
+        l.descricao,
+        l.ano_publicacao,
+        l.isbn,
+        l.estado,
+        l.data_postagem,
+        a.nome AS autor_nome,
+        a.nacionalidade AS autor_nacionalidade,
+        g.nome AS genero_nome,
+        u.nome AS usuario_nome,
+        u.email AS usuario_email
+      FROM livro l
+      INNER JOIN autor a ON l.id_autor = a.id_autor
+      INNER JOIN genero g ON l.id_genero = g.id_genero
+      INNER JOIN usuario u ON l.id_usuario = u.id_usuario
+      WHERE l.aprovado = 1
+      ORDER BY l.data_postagem DESC`
+    );
+    res.json({ success: true, livros: results });
+  } catch (err) {
+    console.error("Erro ao listar livros:", err);
+    res.status(500).json({
+      success: false,
+      message: "Erro no servidor",
+    });
+  }
+});
 
 // TODO: Rota de geração de relatório (ADMIN)
 // app.get("/api/relatorio", async (req, res) => {});
