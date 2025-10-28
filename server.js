@@ -42,6 +42,20 @@ function verificarAutenticacao(req, res, next) {
   });
 }
 
+function verificarRevisor(req, res, next) {
+  if (
+    req.session &&
+    req.session.usuario &&
+    req.session.usuario.tipo === "revisor"
+  ) {
+    return next();
+  }
+  return res.status(403).json({
+    success: false,
+    message: "Acesso negado. Apenas revisores.",
+  });
+}
+
 function verificarAdmin(req, res, next) {
   if (
     req.session &&
@@ -249,54 +263,6 @@ app.post("/api/login", async (req, res) => {
       success: false,
       message: "Erro ao processar login",
     });
-  }
-});
-
-// * Rota de recuperação de senha
-app.post("/recuperar", async (req, res) => {
-  try {
-    const { email } = req.body;
-
-    // Verifica se o usuário existe
-    const [usuarios] = await db.query(
-      "SELECT id_usuario, nome FROM usuario WHERE email = ?",
-      [email]
-    );
-
-    if (usuarios.length === 0) {
-      return res.status(404).json({ message: "E-mail não encontrado." });
-    }
-
-    const usuario = usuarios[0];
-
-    // Gera token e expiração
-    const token = gerarToken();
-    const agora = new Date();
-    const expira = calcularExpiracao(1); // 1 hora
-
-    // Salva na tabela de recuperação
-    await db.query(
-      "INSERT INTO Recuperacao_senha (token, data_solicitacao, data_expiracao, status, id_usuario) VALUES (?, ?, ?, ?, ?)",
-      [token, agora, expira, 0, usuario.id_usuario]
-    );
-
-    // Cria link para redefinir senha
-    const link = `http://localhost:3000/redefinir/index.html?token=${token}`;
-
-    // Envia e-mail
-    await enviarEmail(
-      email,
-      "Recuperação de Senha - BookTrade",
-      `<p>Olá ${usuario.nome}, clique no link abaixo para redefinir sua senha:</p>
-       <a href="${link}">${link}</a>
-       <p>O link expira em 1 hora.</p>`
-    );
-
-    res.json({ message: "E-mail de recuperação enviado." });
-    console.log(`Token de recuperação gerado para: ${email}`);
-  } catch (err) {
-    console.error("Erro na recuperação de senha:", err);
-    res.status(500).json({ message: "Erro ao enviar e-mail de recuperação." });
   }
 });
 
@@ -568,6 +534,162 @@ app.delete(
     }
   }
 );
+
+// * Rota de cadastro de livros (USUÁRIO AUTENTICADO)
+app.post("/api/cadastrar-livro", verificarAutenticacao, async (req, res) => {
+  try {
+    const {
+      titulo,
+      descricao,
+      ano_publicacao,
+      isbn,
+      estado,
+      nome_autor,
+      nacionalidade_autor,
+      nome_genero,
+    } = req.body;
+
+    const id_usuario = req.session.usuario.id;
+
+    if (
+      !titulo ||
+      !descricao ||
+      !ano_publicacao ||
+      !isbn ||
+      !estado ||
+      !nome_autor ||
+      !nacionalidade_autor ||
+      !nome_genero
+    ) {
+      return res.status(400).json({
+        success: false,
+        message: "Todos os campos obrigatórios devem ser preenchidos",
+      });
+    }
+
+    let id_autor;
+    const [autorExistente] = await db.query(
+      "SELECT id_autor FROM autor WHERE nome = ? AND nacionalidade = ?",
+      [nome_autor, nacionalidade_autor]
+    );
+    if (autorExistente.length > 0) {
+      id_autor = autorExistente[0].id_autor;
+    } else {
+      const [novoAutor] = await db.query(
+        "INSERT INTO autor (nome, nacionalidade) VALUES (?, ?)",
+        [nome_autor, nacionalidade_autor]
+      );
+      id_autor = novoAutor.insertId;
+    }
+
+    let id_genero;
+    const [generoExistente] = await db.query(
+      "SELECT id_genero FROM genero WHERE nome = ?",
+      [nome_genero]
+    );
+    if (generoExistente.length > 0) {
+      id_genero = generoExistente[0].id_genero;
+    } else {
+      const [novoGenero] = await db.query(
+        "INSERT INTO genero (nome) VALUES (?)",
+        [nome_genero]
+      );
+      id_genero = novoGenero.insertId;
+    }
+
+    const data_postagem = new Date();
+    const [livroResult] = await db.query(
+      "INSERT INTO livro (titulo, descricao, ano_publicacao, isbn, estado, data_postagem, id_usuario, id_autor, id_genero, aprovado, observacao_revisao) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, NULL, NULL)",
+      [
+        titulo,
+        descricao,
+        ano_publicacao,
+        isbn,
+        estado,
+        data_postagem,
+        id_usuario,
+        id_autor,
+        id_genero,
+      ]
+    );
+
+    res.json({
+      success: true,
+      message: "Livro cadastrado com sucesso, aguardando aprovação do revisor!",
+      livroId: livroResult.insertId,
+    });
+    console.log(
+      `Novo livro cadastrado: ${titulo} (ID: ${livroResult.insertId})`
+    );
+  } catch (err) {
+    console.error(err);
+    res
+      .status(500)
+      .json({ success: false, message: "Erro no cadastro: " + err.message });
+  }
+});
+
+// * Rota de listagem de livros pendentes de aprovação (REVISOR)
+app.get(
+  "/api/livros-pendentes",
+  verificarAutenticacao,
+  verificarRevisor,
+  async (req, res) => {
+    try {
+      const [results] = await db.query(
+        `SELECT l.id_livro, l.titulo, l.descricao, l.ano_publicacao, l.isbn, l.estado, l.data_postagem,
+                a.nome AS nome_autor, a.nacionalidade AS nacionalidade_autor, g.nome AS nome_genero,
+                u.id_usuario, u.nome AS nome_usuario, u.email AS email_usuario
+         FROM livro l 
+          INNER JOIN autor a ON l.id_autor = a.id_autor
+          INNER JOIN genero g ON l.id_genero = g.id_genero
+          INNER JOIN usuario u ON l.id_usuario = u.id_usuario
+         WHERE l.aprovado IS NULL`
+      );
+      res.json({ success: true, livros: results });
+    } catch (err) {
+      console.error("Erro ao listar livros pendentes:", err);
+      res.status(500).json({
+        success: false,
+        message: "Erro no servidor",
+      });
+    }
+  }
+);
+
+// * Rota de listagem de livros aprovados (PÚBLICA)
+app.get("/api/livros", async (req, res) => {
+  try {
+    const [results] = await db.query(
+      `SELECT 
+        l.id_livro,
+        l.titulo,
+        l.descricao,
+        l.ano_publicacao,
+        l.isbn,
+        l.estado,
+        l.data_postagem,
+        a.nome AS autor_nome,
+        a.nacionalidade AS autor_nacionalidade,
+        g.nome AS genero_nome,
+        u.nome AS usuario_nome,
+        u.email AS usuario_email
+      FROM livro l
+      INNER JOIN autor a ON l.id_autor = a.id_autor
+      INNER JOIN genero g ON l.id_genero = g.id_genero
+      INNER JOIN usuario u ON l.id_usuario = u.id_usuario
+      WHERE l.aprovado = 1
+      ORDER BY l.data_postagem DESC`
+    );
+    res.json({ success: true, livros: results });
+  } catch (err) {
+    console.error("Erro ao listar livros:", err);
+    res.status(500).json({
+      success: false,
+      message: "Erro no servidor",
+    });
+  }
+});
 
 // TODO: Rota de geração de relatório (ADMIN)
 // app.get("/api/relatorio", async (req, res) => {});

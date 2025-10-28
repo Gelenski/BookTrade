@@ -54,6 +54,8 @@ CREATE TABLE Livro (
     estado VARCHAR(20) NOT NULL,
     data_postagem DATETIME NOT NULL,
     data_autorizacao DATETIME,
+    observacao_revisao TEXT,
+    aprovado TINYINT,
     id_usuario INT NOT NULL,
     id_revisor INT,
     id_genero INT NOT NULL,
