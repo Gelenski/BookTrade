@@ -2,8 +2,19 @@
   margin: 0;
   padding: 0;
   box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
 
+body {
+  font-family: Arial, sans-serif;
+  background-color: #f0f0f0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  padding: 20px;
 body {
   font-family: Arial, sans-serif;
   background-color: #f0f0f0;
@@ -68,4 +79,10 @@ p {
   font-size: 13px;
   color: #666;
   margin-bottom: 20px;
+}
+
+#mensagem {
+  padding: 10px;
+  text-align: center;
+  border-radius: 5px;
 }

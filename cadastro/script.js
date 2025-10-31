@@ -1,7 +1,29 @@
+// Verifica se já está autenticado ao carregar a página
+document.addEventListener("DOMContentLoaded", async () => {
+  try {
+    const response = await fetch("/api/verificar-sessao", {
+      method: "GET",
+      credentials: "include",
+    });
+    const data = await response.json();
+
+    if (data.success && data.autenticado) {
+      const rotas = {
+        admin: "/admin/index.html",
+        revisor: "/gestor/index.html",
+        comum: "/user/index.html",
+      };
+      window.location.href = rotas[data.usuario.tipo] || "/user/index.html";
+    }
+  } catch (error) {
+    console.error("Erro ao verificar sessão:", error);
+  }
+});
+
 const cepInput = document.querySelector('input[name="cep"]');
 const ruaInput = document.querySelector('input[name="rua"]');
 const bairroInput = document.querySelector('input[name="bairro"]');
-const estadoInput = document.querySelector('input[name="estado"]');
+const estadoInput = document.querySelector('input[name="cidade"]');
 
 cepInput.addEventListener("blur", async () => {
   const cep = cepInput.value.replace(/\D/g, "");
@@ -19,5 +41,74 @@ cepInput.addEventListener("blur", async () => {
     }
   } catch (err) {
     console.error("Erro ao buscar o CEP:", err);
+  }
+});
+
+const form = document.querySelector(".cadastro-form");
+const submitButton = document.getElementById("button-submit");
+
+form.addEventListener("submit", async (e) => {
+  e.preventDefault();
+
+  submitButton.disabled = true;
+  submitButton.textContent = "Cadastrando...";
+
+  const formData = {
+    nome: document.getElementById("input-nome").value,
+    email: document.getElementById("input-email").value,
+    telefone: document.getElementById("input-telefone").value,
+    cpf: document.getElementById("input-cpf").value,
+    cep: document.getElementById("input-cep").value,
+    rua: document.getElementById("input-rua").value,
+    numero: document.getElementById("input-numero").value,
+    bairro: document.getElementById("input-bairro").value,
+    cidade: document.getElementById("input-cidade").value,
+    senha: document.getElementById("input-senha").value,
+  };
+
+  try {
+    const response = await fetch("/api/cadastro", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      credentials: "include",
+      body: JSON.stringify(formData),
+    });
+
+    const data = await response.json();
+
+    if (data.success) {
+      alert(data.message);
+      window.location.href = "/user/index.html";
+    } else {
+      alert(data.message || "Erro ao realizar cadastro");
+    }
+  } catch (error) {
+    console.error("Erro ao cadastrar:", error);
+    alert("Erro ao conectar com o servidor");
+  } finally {
+    submitButton.disabled = false;
+    submitButton.textContent = "Cadastrar-se";
+  }
+
+  try {
+    const response = await fetch("/api/login", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ email: formData.email, password: formData.senha }),
+      credentials: "include",
+    });
+    const data = await response.json();
+
+    if (data.success) {
+      window.location.href = "/user/index.html";
+    } else {
+      console.error("Login automático falhou após cadastro.");
+    }
+  } catch (error) {
+    console.error("Erro ao logar após cadastro:", error);
   }
 });

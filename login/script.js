@@ -4,6 +4,29 @@ const emailInput = document.getElementById("email");
 const passwordInput = document.getElementById("password");
 const messageDiv = document.getElementById("message");
 
+// * Verifica se já está autenticado ao carregar a página
+document.addEventListener("DOMContentLoaded", async () => {
+  try {
+    const response = await fetch("/api/verificar-sessao", {
+      method: "GET",
+      credentials: "include",
+    });
+    const data = await response.json();
+
+    if (data.success && data.autenticado) {
+      // Já está autenticado, redireciona para a página apropriada
+      const rotas = {
+        admin: "/admin/index.html",
+        revisor: "/gestor/index.html",
+        comum: "/user/index.html",
+      };
+      window.location.href = rotas[data.usuario.tipo] || "/user/index.html";
+    }
+  } catch (error) {
+    console.error("Erro ao verificar sessão:", error);
+  }
+});
+
 // Event listener para o submit do formulário
 loginForm.addEventListener("submit", async (e) => {
   e.preventDefault();
@@ -35,6 +58,7 @@ loginForm.addEventListener("submit", async (e) => {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({ email, password }),
+      credentials: "include",
     });
 
     const data = await response.json();
