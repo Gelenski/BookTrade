@@ -9,7 +9,8 @@ const books = [
     owner: "Maria Silva",
     ownerEmail: "maria.silva@email.com",
     ownerPhone: "(11) 98765-4321",
-    description: "Uma das obras-primas de Machado de Assis, que narra a história de Bentinho e Capitu, um dos romances mais intrigantes da literatura brasileira.",
+    description:
+      "Uma das obras-primas de Machado de Assis, que narra a história de Bentinho e Capitu, um dos romances mais intrigantes da literatura brasileira.",
     condition: "Muito Bom",
     pages: 256,
   },
@@ -22,7 +23,8 @@ const books = [
     owner: "João Santos",
     ownerEmail: "joao.santos@email.com",
     ownerPhone: "(21) 91234-5678",
-    description: "Distopia clássica que retrata um futuro totalitário onde o Grande Irmão controla todos os aspectos da vida.",
+    description:
+      "Distopia clássica que retrata um futuro totalitário onde o Grande Irmão controla todos os aspectos da vida.",
     condition: "Bom",
     pages: 416,
   },
@@ -35,7 +37,8 @@ const books = [
     owner: "Ana Costa",
     ownerEmail: "ana.costa@email.com",
     ownerPhone: "(11) 99876-5432",
-    description: "Fábula poética sobre um pequeno príncipe que viaja por diversos planetas, repleta de ensinamentos sobre amor e amizade.",
+    description:
+      "Fábula poética sobre um pequeno príncipe que viaja por diversos planetas, repleta de ensinamentos sobre amor e amizade.",
     condition: "Excelente",
     pages: 96,
   },
@@ -48,7 +51,8 @@ const books = [
     owner: "Pedro Lima",
     ownerEmail: "pedro.lima@email.com",
     ownerPhone: "(85) 98888-7777",
-    description: "O início da saga do bruxo mais famoso do mundo. Harry descobre que é um bruxo e inicia sua jornada em Hogwarts.",
+    description:
+      "O início da saga do bruxo mais famoso do mundo. Harry descobre que é um bruxo e inicia sua jornada em Hogwarts.",
     condition: "Muito Bom",
     pages: 264,
   },
@@ -61,7 +65,8 @@ const books = [
     owner: "Lucas Ferreira",
     ownerEmail: "lucas.ferreira@email.com",
     ownerPhone: "(41) 97777-6666",
-    description: "Épico de fantasia sobre a jornada de Frodo para destruir o Um Anel e salvar a Terra-média da escuridão.",
+    description:
+      "Épico de fantasia sobre a jornada de Frodo para destruir o Um Anel e salvar a Terra-média da escuridão.",
     condition: "Bom",
     pages: 1178,
   },
@@ -74,7 +79,8 @@ const books = [
     owner: "Carla Souza",
     ownerEmail: "carla.souza@email.com",
     ownerPhone: "(31) 96666-5555",
-    description: "Obra-prima do realismo mágico que conta a saga da família Buendía na fictícia cidade de Macondo.",
+    description:
+      "Obra-prima do realismo mágico que conta a saga da família Buendía na fictícia cidade de Macondo.",
     condition: "Muito Bom",
     pages: 432,
   },
@@ -87,7 +93,8 @@ const books = [
     owner: "Rafael Alves",
     ownerEmail: "rafael.alves@email.com",
     ownerPhone: "(48) 95555-4444",
-    description: "A aventura de Bilbo Bolseiro com um grupo de anões para recuperar um tesouro guardado por um dragão.",
+    description:
+      "A aventura de Bilbo Bolseiro com um grupo de anões para recuperar um tesouro guardado por um dragão.",
     condition: "Excelente",
     pages: 310,
   },
@@ -100,14 +107,15 @@ const books = [
     owner: "Juliana Rocha",
     ownerEmail: "juliana.rocha@email.com",
     ownerPhone: "(61) 94444-3333",
-    description: "Uma breve história da humanidade, desde os primórdios até os dias atuais, explorando como nos tornamos a espécie dominante.",
+    description:
+      "Uma breve história da humanidade, desde os primórdios até os dias atuais, explorando como nos tornamos a espécie dominante.",
     condition: "Muito Bom",
     pages: 464,
   },
 ];
 
 // Estado da aplicação
-let state = {
+const state = {
   searchTerm: "",
   selectedGenre: "all",
   sortBy: "title",
@@ -139,7 +147,14 @@ const elements = {
 };
 
 // Cores para os placeholders dos livros
-const bookColors = ["#3b82f6", "#8b5cf6", "#ec4899", "#10b981", "#f59e0b", "#ef4444"];
+const bookColors = [
+  "#3b82f6",
+  "#8b5cf6",
+  "#ec4899",
+  "#10b981",
+  "#f59e0b",
+  "#ef4444",
+];
 
 // Função para obter cor baseada no ID
 function getBookColor(id) {
@@ -152,13 +167,19 @@ function fuzzyMatch(str, pattern) {
   const patternLower = pattern.toLowerCase();
 
   // Busca exata tem prioridade
-  if (strLower.includes(patternLower)) return 100;
+  if (strLower.includes(patternLower)) {
+    return 100;
+  }
 
   // Busca fuzzy - permite alguns erros
   let score = 0;
   let patternIdx = 0;
 
-  for (let i = 0; i < strLower.length && patternIdx < patternLower.length; i++) {
+  for (
+    let i = 0;
+    i < strLower.length && patternIdx < patternLower.length;
+    i++
+  ) {
     if (strLower[i] === patternLower[patternIdx]) {
       score += 10;
       patternIdx++;
@@ -170,12 +191,15 @@ function fuzzyMatch(str, pattern) {
 
 // Algoritmo de filtragem e ordenação
 function getFilteredAndSortedBooks() {
-  let result = books.filter((book) => {
+  const result = books.filter((book) => {
     // Filtro por gênero
-    const matchesGenre = state.selectedGenre === "all" || book.genre === state.selectedGenre;
+    const matchesGenre =
+      state.selectedGenre === "all" || book.genre === state.selectedGenre;
 
     // Filtro por busca com algoritmo fuzzy
-    if (!state.debouncedSearch) return matchesGenre;
+    if (!state.debouncedSearch) {
+      return matchesGenre;
+    }
 
     const titleScore = fuzzyMatch(book.title, state.debouncedSearch);
     const authorScore = fuzzyMatch(book.author, state.debouncedSearch);
@@ -207,9 +231,13 @@ function getFilteredAndSortedBooks() {
 // Sistema de recomendações
 function getRecommendations(bookId) {
   const book = books.find((b) => b.id === bookId);
-  if (!book) return [];
+  if (!book) {
+    return [];
+  }
 
-  return books.filter((b) => b.id !== bookId && b.genre === book.genre).slice(0, 3);
+  return books
+    .filter((b) => b.id !== bookId && b.genre === book.genre)
+    .slice(0, 3);
 }
 
 // Gerenciar favoritos
@@ -301,7 +329,10 @@ function createBookCard(book) {
 
   const heartIcon = document.createElement("svg");
   heartIcon.className = `icon-heart ${state.favorites.includes(book.id) ? "active" : ""}`;
-  heartIcon.setAttribute("fill", state.favorites.includes(book.id) ? "currentColor" : "none");
+  heartIcon.setAttribute(
+    "fill",
+    state.favorites.includes(book.id) ? "currentColor" : "none"
+  );
   heartIcon.setAttribute("stroke", "currentColor");
   heartIcon.setAttribute("viewBox", "0 0 24 24");
   heartIcon.innerHTML = `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>`;
@@ -373,7 +404,8 @@ function openBookModal(book) {
   // Atualizar informações
   document.getElementById("modalBookTitle").textContent = book.title;
   document.getElementById("modalBookAuthor").textContent = book.author;
-  document.getElementById("modalBookDescription").textContent = book.description;
+  document.getElementById("modalBookDescription").textContent =
+    book.description;
 
   // Atualizar tags
   document.getElementById("modalBookTags").innerHTML = `
@@ -525,7 +557,9 @@ function initializeFilters() {
 }
 
 // Event Listeners
-elements.searchInput.addEventListener("input", (e) => handleSearchInput(e.target.value));
+elements.searchInput.addEventListener("input", (e) =>
+  handleSearchInput(e.target.value)
+);
 
 elements.genreSelect.addEventListener("change", (e) => {
   state.selectedGenre = e.target.value;

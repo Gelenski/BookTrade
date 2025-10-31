@@ -4,7 +4,8 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>BookTrade - Troca de Livros</title>
-    <link rel="stylesheet" href="style.css" />
+    <script src="script.js" defer></script>
+    <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
     <!-- Header -->
@@ -12,7 +13,12 @@
       <div class="container">
         <div class="header-content">
           <div class="logo">
-            <svg class="icon-book" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg
+              class="icon-book"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
               <path
                 stroke-linecap="round"
                 stroke-linejoin="round"
@@ -44,7 +50,12 @@
         <div class="filters-row">
           <!-- Search Input -->
           <div class="search-wrapper">
-            <svg class="search-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg
+              class="search-icon"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
               <path
                 stroke-linecap="round"
                 stroke-linejoin="round"
@@ -61,7 +72,12 @@
 
           <!-- Filter Toggle (Mobile) -->
           <button id="filterToggle" class="btn-filter-toggle mobile-only">
-            <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg
+              class="icon"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
               <path
                 stroke-linecap="round"
                 stroke-linejoin="round"
@@ -88,7 +104,12 @@
 
             <div class="view-toggle">
               <button id="gridViewBtn" class="btn-view active">
-                <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg
+                  class="icon"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
                   <path
                     stroke-linecap="round"
                     stroke-linejoin="round"
@@ -98,7 +119,12 @@
                 </svg>
               </button>
               <button id="listViewBtn" class="btn-view">
-                <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg
+                  class="icon"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
                   <path
                     stroke-linecap="round"
                     stroke-linejoin="round"
@@ -131,7 +157,12 @@
 
       <!-- No Results -->
       <div id="noResults" class="no-results" style="display: none">
-        <svg class="icon-large" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <svg
+          class="icon-large"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
           <path
             stroke-linecap="round"
             stroke-linejoin="round"
@@ -151,7 +182,12 @@
         <div class="modal-header">
           <h3>Detalhes do Livro</h3>
           <button id="closeModal" class="btn-close">
-            <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg
+              class="icon"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
               <path
                 stroke-linecap="round"
                 stroke-linejoin="round"
@@ -175,7 +211,12 @@
               <div class="modal-title-row">
                 <h4 id="modalBookTitle"></h4>
                 <button id="modalFavoriteBtn" class="btn-favorite">
-                  <svg class="icon-heart" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg
+                    class="icon-heart"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
                     <path
                       stroke-linecap="round"
                       stroke-linejoin="round"
@@ -195,7 +236,12 @@
           <!-- Informações do Dono -->
           <div class="modal-section">
             <h5 class="section-title">
-              <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg
+                class="icon"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
                 <path
                   stroke-linecap="round"
                   stroke-linejoin="round"
@@ -209,7 +255,11 @@
           </div>
 
           <!-- Recomendações -->
-          <div id="modalRecommendations" class="modal-section" style="display: none">
+          <div
+            id="modalRecommendations"
+            class="modal-section"
+            style="display: none"
+          >
             <h5 class="section-title">Livros Relacionados</h5>
             <div id="recommendationsList" class="recommendations-list"></div>
           </div>
@@ -217,7 +267,12 @@
           <!-- Formulário de Troca -->
           <div class="modal-section">
             <h5 class="section-title">
-              <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg
+                class="icon"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
                 <path
                   stroke-linecap="round"
                   stroke-linejoin="round"
@@ -233,7 +288,12 @@
               class="trade-textarea"
             ></textarea>
             <button id="sendTradeBtn" class="btn-trade-send">
-              <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg
+                class="icon"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
                 <path
                   stroke-linecap="round"
                   stroke-linejoin="round"
@@ -247,7 +307,5 @@
         </div>
       </div>
     </div>
-
-    <script src="catalogo.js"></script>
   </body>
 </html>
