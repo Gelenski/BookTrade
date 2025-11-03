@@ -45,7 +45,9 @@ function initTabs() {
 // * ==================== CARREGAMENTO DE USUÁRIOS ====================
 async function loadUsers() {
   try {
-    const response = await fetch("/api/users", { credentials: "include" });
+    const response = await fetch("/api/admin/users", {
+      credentials: "include",
+    });
 
     if (response.status === 401) {
       alert("Sessão expirada. Faça login novamente.");
@@ -368,7 +370,7 @@ async function handleRevisorSubmit(e) {
   };
 
   try {
-    const response = await fetch("/api/cadastro-revisor", {
+    const response = await fetch("/api/admin/cadastro-revisor", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(revisorData),
@@ -403,11 +405,14 @@ async function handleEditSubmit(e) {
   };
 
   try {
-    const response = await fetch("/api/atualizar-usuario/" + userData.id, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(userData),
-    });
+    const response = await fetch(
+      "/api/admin/atualizar-usuario/" + userData.id,
+      {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(userData),
+      }
+    );
 
     const data = await response.json();
     console.log("Resposta da atualização:", data);
@@ -432,9 +437,12 @@ async function handleDeleteUser() {
   }
 
   try {
-    const response = await fetch("/api/deletar-usuario/" + currentUserId, {
-      method: "DELETE",
-    });
+    const response = await fetch(
+      "/api/admin/deletar-usuario/" + currentUserId,
+      {
+        method: "DELETE",
+      }
+    );
     const data = await response.json();
 
     if (!data.success) {

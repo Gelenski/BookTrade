@@ -33,8 +33,11 @@ const fileFilter = (req, file, cb) => {
 
 const upload = multer({
   storage: storage,
-  limits: { fileSize: 5 * 1024 * 1024 },
+  limits: { fileSize: 10 * 1024 * 1024 }, // 10 MB
   fileFilter: fileFilter,
 });
 
-module.exports = upload;
+module.exports = upload.fields([
+  { name: "capa", maxCount: 1 },
+  { name: "imagens", maxCount: 3 },
+]);
