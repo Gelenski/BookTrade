@@ -32,13 +32,6 @@ CREATE TABLE Usuario (
     FOREIGN KEY (id_endereco) REFERENCES Endereco(id_endereco)
 );
 
-CREATE TABLE Revisor (
-    id_revisor INT AUTO_INCREMENT PRIMARY KEY,
-    validar TINYINT NOT NULL,
-    id_usuario INT NOT NULL,
-    FOREIGN KEY (id_usuario) REFERENCES Usuario(id_usuario)
-);
-
 CREATE TABLE Genero (
     id_genero INT AUTO_INCREMENT PRIMARY KEY,
     nome VARCHAR(50) NOT NULL UNIQUE
@@ -58,11 +51,28 @@ CREATE TABLE Livro (
     aprovado TINYINT,
     id_usuario INT NOT NULL,
     id_revisor INT,
-    id_genero INT NOT NULL,
+    id_genero INT,
     FOREIGN KEY (id_autor) REFERENCES Autor(id_autor),
     FOREIGN KEY (id_usuario) REFERENCES Usuario(id_usuario),
-    FOREIGN KEY (id_revisor) REFERENCES Revisor(id_revisor),
+    FOREIGN KEY (id_revisor) REFERENCES Usuario(id_usuario),
     FOREIGN KEY (id_genero) REFERENCES Genero(id_genero)
+);
+
+CREATE TABLE Livro_genero (
+    id_livro_genero INT AUTO_INCREMENT PRIMARY KEY,
+    id_livro INT NOT NULL,
+    id_genero INT NOT NULL,
+    FOREIGN KEY (id_livro) REFERENCES Livro(id_livro),
+    FOREIGN KEY (id_genero) REFERENCES Genero(id_genero)
+);
+
+CREATE TABLE Livro_imagem (
+    id_imagem INT AUTO_INCREMENT PRIMARY KEY,
+    id_livro INT NOT NULL,
+    caminho_imagem VARCHAR(255) NOT NULL,
+    tipo VARCHAR(20) DEFAULT 'adicional',
+    data_upload DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (id_livro) REFERENCES Livro(id_livro)
 );
 
 CREATE TABLE Usuario_telefone (
@@ -81,9 +91,11 @@ CREATE TABLE Troca (
     id_usuario_solicitante INT NOT NULL,
     id_usuario_ofertante INT NOT NULL,
     id_livro_ofertado INT NOT NULL,
+    id_livro_solicitado INT NOT NULL,
     FOREIGN KEY (id_usuario_solicitante) REFERENCES Usuario(id_usuario),
     FOREIGN KEY (id_usuario_ofertante) REFERENCES Usuario(id_usuario),
-    FOREIGN KEY (id_livro_ofertado) REFERENCES Livro(id_livro)
+    FOREIGN KEY (id_livro_ofertado) REFERENCES Livro(id_livro),
+    FOREIGN KEY (id_livro_solicitado) REFERENCES Livro(id_livro)
 );
 
 CREATE TABLE Historico (
@@ -122,7 +134,7 @@ CREATE TABLE Ponto (
     id_ponto INT AUTO_INCREMENT PRIMARY KEY,
     quant_total INT NOT NULL,
     data_atualizacao DATETIME,
-    id_usuario INT NOT NULL,
+    id_usuario INT NOT NULL UNIQUE,
     FOREIGN KEY (id_usuario) REFERENCES Usuario(id_usuario)
 );
 
@@ -132,6 +144,7 @@ CREATE TABLE Notificacao (
     tipo VARCHAR(50) NOT NULL,
     mensagem TEXT NOT NULL,
     data_envio DATETIME NOT NULL,
+    lida TINYINT DEFAULT 0,
     id_usuario INT NOT NULL,
     FOREIGN KEY (id_usuario) REFERENCES Usuario(id_usuario)
 );

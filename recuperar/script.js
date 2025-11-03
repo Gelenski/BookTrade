@@ -7,7 +7,7 @@ document
     const mensagem = document.querySelector("#mensagem");
 
     try {
-      const response = await fetch("/recuperar", {
+      const response = await fetch("/api/auth/recuperar", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email }),
