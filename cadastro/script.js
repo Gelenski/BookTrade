@@ -1,7 +1,7 @@
 // Verifica se já está autenticado ao carregar a página
 document.addEventListener("DOMContentLoaded", async () => {
   try {
-    const response = await fetch("/api/verificar-sessao", {
+    const response = await fetch("/api/auth/verificar-sessao", {
       method: "GET",
       credentials: "include",
     });
@@ -67,7 +67,7 @@ form.addEventListener("submit", async (e) => {
   };
 
   try {
-    const response = await fetch("/api/cadastro", {
+    const response = await fetch("/api/auth/cadastro", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -93,7 +93,7 @@ form.addEventListener("submit", async (e) => {
   }
 
   try {
-    const response = await fetch("/api/login", {
+    const response = await fetch("/api/auth/login", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
