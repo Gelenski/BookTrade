@@ -48,7 +48,7 @@ document.addEventListener("DOMContentLoaded", () => {
     mensagem.style.color = "black";
 
     try {
-      const response = await fetch("/redefinir", {
+      const response = await fetch("/api/auth/redefinir", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ token, novaSenha }),
