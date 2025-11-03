@@ -5,4 +5,6 @@ const upload = require("../utils/upload");
 
 router.post("/cadastrar-livro", upload, userController.cadastrarLivro);
 
+router.get("/meus-livros", userController.listarMeusLivros);
+
 module.exports = router;
