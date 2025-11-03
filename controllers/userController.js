@@ -105,8 +105,8 @@ exports.cadastrarLivro = async (req, res) => {
 
     // Inserir capa na tabela Livro_imagem
     await db.query(
-      "INSERT INTO Livro_imagem (id_livro, caminho_imagem, tipo, ordem) VALUES (?, ?, ?, ?)",
-      [id_livro, imagemCapa, "capa", 0]
+      "INSERT INTO Livro_imagem (id_livro, caminho_imagem, tipo) VALUES (?, ?, ?)",
+      [id_livro, imagemCapa, "capa"]
     );
 
     // Inserir imagens adicionais
@@ -115,7 +115,7 @@ exports.cadastrarLivro = async (req, res) => {
         const caminhoImagem =
           "/uploads/livros/" + req.files.imagens[i].filename;
         await db.query(
-          "INSERT INTO Livro_imagem (id_livro, caminho_imagem, tipo, ordem) VALUES (?, ?, ?, ?)",
+          "INSERT INTO Livro_imagem (id_livro, caminho_imagem, tipo) VALUES (?, ?, ?)",
           [id_livro, caminhoImagem, "adicional", i + 1]
         );
       }
