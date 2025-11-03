@@ -478,7 +478,7 @@ async function handleLogout() {
   }
 
   try {
-    const response = await fetch("/api/logout", {
+    const response = await fetch("/api/auth/logout", {
       method: "POST",
       credentials: "include",
     });
@@ -499,7 +499,7 @@ async function handleLogout() {
 // ==================== AUTENTICAÇÃO ====================
 async function verificarSessao() {
   try {
-    const response = await fetch("/api/verificar-sessao", {
+    const response = await fetch("/api/auth/verificar-sessao", {
       method: "GET",
       credentials: "include",
     });
