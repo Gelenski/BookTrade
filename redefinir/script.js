@@ -15,7 +15,7 @@ document.addEventListener("DOMContentLoaded", () => {
     // desabilita o botão ao clicar
     if (botao) {
       botao.disabled = true;
-      botao.textContent = "Enviando..."; 
+      botao.textContent = "Enviando...";
     }
 
     const novaSenha = novaSenhaInput.value;
@@ -26,7 +26,7 @@ document.addEventListener("DOMContentLoaded", () => {
       mensagem.style.color = "red";
       if (botao) {
         botao.disabled = false;
-        botao.textContent = "Redefenir senha";
+        botao.textContent = "Redefinir senha";
       }
       return;
     }
@@ -39,7 +39,7 @@ document.addEventListener("DOMContentLoaded", () => {
       mensagem.style.color = "red";
       if (botao) {
         botao.disabled = false;
-        botao.textContent = "Redefenir senha";
+        botao.textContent = "Redefinir senha";
       }
       return;
     }
@@ -64,7 +64,7 @@ document.addEventListener("DOMContentLoaded", () => {
       // reabilita o botão após a resposta
       if (botao) {
         botao.disabled = false;
-        botao.textContent = "Enviar";
+        botao.textContent = "Redefinir senha";
       }
     }
   });

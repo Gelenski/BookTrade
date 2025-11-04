@@ -5,7 +5,7 @@ document
 
     const email = document.querySelector("#email").value;
     const mensagem = document.querySelector("#mensagem");
-    const botao = event.target.querySelector("button"); 
+    const botao = event.target.querySelector("button");
 
     //desabilita o botão após o click
     botao.disabled = true;
@@ -32,10 +32,9 @@ document
       mensagem.textContent = "Erro ao enviar solicitação: " + error.message;
       mensagem.style.color = "red";
 
-    //reativa botão ao final  
+      //reativa botão ao final
     } finally {
       botao.disabled = false;
       botao.textContent = "Enviar link de recuperação";
     }
   });
-
