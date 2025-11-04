@@ -1,3 +1,4 @@
+const js = require("@eslint/js");
 const db = require("../db/database");
 
 exports.cadastrarLivro = async (req, res) => {
@@ -133,6 +134,34 @@ exports.cadastrarLivro = async (req, res) => {
     res.status(500).json({
       success: false,
       message: "Erro no cadastro: " + err.message,
+    });
+  }
+};
+
+exports.listarMeusLivros = async (req, res) => {
+  try {
+    if (!req.session || !req.session.usuario) {
+      return res.status(401).json({
+        success: false,
+        message: "Usuário não autenticado",
+      });
+    }
+    const id_usuario = req.session.usuario.id;
+    const [results] = await db.query(
+      `SELECT l.id_livro, l.titulo, l.descricao, l.ano_publicacao, l.isbn, l.estado, l.data_postagem, l.aprovado, l.observacao_revisao,
+                    a.nome AS nome_autor, a.nacionalidade AS nacionalidade_autor, g.nome AS nome_genero
+            FROM livro l 
+                INNER JOIN autor a ON l.id_autor = a.id_autor
+                INNER JOIN genero g ON l.id_genero = g.id_genero
+            WHERE l.id_usuario = ?`,
+      [id_usuario]
+    );
+    res.json({ success: true, livros: results });
+  } catch (err) {
+    console.error("Erro ao listar meus livros:", err);
+    res.status(500).json({
+      success: false,
+      message: "Erro no servidor",
     });
   }
 };
