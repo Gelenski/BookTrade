@@ -120,6 +120,36 @@ app.get("/api/livros", async (req, res) => {
   }
 });
 
+app.get("/api/livro/:id/imagens", async (req, res) => {
+  try {
+    const livroId = req.params.id;
+
+    const [imagens] = await db.query(
+      `SELECT id_imagem, caminho_imagem, tipo, data_upload 
+       FROM Livro_imagem 
+       WHERE id_livro = ? 
+       ORDER BY 
+         CASE 
+           WHEN tipo = 'capa' THEN 0 
+           ELSE 1 
+         END,
+         id_imagem`,
+      [livroId]
+    );
+
+    res.json({
+      success: true,
+      imagens: imagens,
+    });
+  } catch (err) {
+    console.error("Erro ao buscar imagens do livro:", err);
+    res.status(500).json({
+      success: false,
+      message: "Erro ao buscar imagens",
+    });
+  }
+});
+
 // TODO: Rota de geração de relatório (ADMIN)
 // app.get("/api/relatorio", async (req, res) => {});
 

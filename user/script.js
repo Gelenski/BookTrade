@@ -1,119 +1,3 @@
-// Dados dos livros
-const books = [
-  {
-    id: 1,
-    title: "Dom Casmurro",
-    author: "Machado de Assis",
-    genre: "Clássico",
-    year: 1899,
-    owner: "Maria Silva",
-    ownerEmail: "maria.silva@email.com",
-    ownerPhone: "(11) 98765-4321",
-    description:
-      "Uma das obras-primas de Machado de Assis, que narra a história de Bentinho e Capitu, um dos romances mais intrigantes da literatura brasileira.",
-    condition: "Muito Bom",
-    pages: 256,
-  },
-  {
-    id: 2,
-    title: "1984",
-    author: "George Orwell",
-    genre: "Ficção",
-    year: 1949,
-    owner: "João Santos",
-    ownerEmail: "joao.santos@email.com",
-    ownerPhone: "(21) 91234-5678",
-    description:
-      "Distopia clássica que retrata um futuro totalitário onde o Grande Irmão controla todos os aspectos da vida.",
-    condition: "Bom",
-    pages: 416,
-  },
-  {
-    id: 3,
-    title: "O Pequeno Príncipe",
-    author: "Antoine de Saint-Exupéry",
-    genre: "Infantil",
-    year: 1943,
-    owner: "Ana Costa",
-    ownerEmail: "ana.costa@email.com",
-    ownerPhone: "(11) 99876-5432",
-    description:
-      "Fábula poética sobre um pequeno príncipe que viaja por diversos planetas, repleta de ensinamentos sobre amor e amizade.",
-    condition: "Excelente",
-    pages: 96,
-  },
-  {
-    id: 4,
-    title: "Harry Potter e a Pedra Filosofal",
-    author: "J.K. Rowling",
-    genre: "Fantasia",
-    year: 1997,
-    owner: "Pedro Lima",
-    ownerEmail: "pedro.lima@email.com",
-    ownerPhone: "(85) 98888-7777",
-    description:
-      "O início da saga do bruxo mais famoso do mundo. Harry descobre que é um bruxo e inicia sua jornada em Hogwarts.",
-    condition: "Muito Bom",
-    pages: 264,
-  },
-  {
-    id: 5,
-    title: "O Senhor dos Anéis",
-    author: "J.R.R. Tolkien",
-    genre: "Fantasia",
-    year: 1954,
-    owner: "Lucas Ferreira",
-    ownerEmail: "lucas.ferreira@email.com",
-    ownerPhone: "(41) 97777-6666",
-    description:
-      "Épico de fantasia sobre a jornada de Frodo para destruir o Um Anel e salvar a Terra-média da escuridão.",
-    condition: "Bom",
-    pages: 1178,
-  },
-  {
-    id: 6,
-    title: "Cem Anos de Solidão",
-    author: "Gabriel García Márquez",
-    genre: "Clássico",
-    year: 1967,
-    owner: "Carla Souza",
-    ownerEmail: "carla.souza@email.com",
-    ownerPhone: "(31) 96666-5555",
-    description:
-      "Obra-prima do realismo mágico que conta a saga da família Buendía na fictícia cidade de Macondo.",
-    condition: "Muito Bom",
-    pages: 432,
-  },
-  {
-    id: 7,
-    title: "O Hobbit",
-    author: "J.R.R. Tolkien",
-    genre: "Fantasia",
-    year: 1937,
-    owner: "Rafael Alves",
-    ownerEmail: "rafael.alves@email.com",
-    ownerPhone: "(48) 95555-4444",
-    description:
-      "A aventura de Bilbo Bolseiro com um grupo de anões para recuperar um tesouro guardado por um dragão.",
-    condition: "Excelente",
-    pages: 310,
-  },
-  {
-    id: 8,
-    title: "Sapiens",
-    author: "Yuval Noah Harari",
-    genre: "Não-ficção",
-    year: 2011,
-    owner: "Juliana Rocha",
-    ownerEmail: "juliana.rocha@email.com",
-    ownerPhone: "(61) 94444-3333",
-    description:
-      "Uma breve história da humanidade, desde os primórdios até os dias atuais, explorando como nos tornamos a espécie dominante.",
-    condition: "Muito Bom",
-    pages: 464,
-  },
-];
-
 // Estado da aplicação
 const state = {
   searchTerm: "",
@@ -124,6 +8,8 @@ const state = {
   selectedBook: null,
   debouncedSearch: "",
   debounceTimer: null,
+  books: [],
+  bookImages: {},
 };
 
 // Elementos do DOM
@@ -161,17 +47,92 @@ function getBookColor(id) {
   return bookColors[id % bookColors.length];
 }
 
+// Carregar livros do backend
+async function carregarLivros() {
+  try {
+    const response = await fetch("/api/livros");
+    const data = await response.json();
+
+    if (data.success) {
+      state.books = data.livros.map((livro) => ({
+        id: livro.id_livro,
+        title: livro.titulo,
+        author: livro.autor_nome,
+        genre: livro.genero_nome,
+        year: livro.ano_publicacao,
+        owner: livro.usuario_nome,
+        ownerEmail: livro.usuario_email,
+        description: livro.descricao,
+        condition: livro.estado,
+        isbn: livro.isbn,
+        nationality: livro.autor_nacionalidade,
+      }));
+
+      // Carregar imagens de cada livro
+      await carregarImagensLivros();
+
+      initializeFilters();
+      renderBooks();
+    } else {
+      console.error("Erro ao carregar livros");
+      showError("Erro ao carregar o catálogo de livros");
+    }
+  } catch (error) {
+    console.error("Erro ao buscar livros:", error);
+    showError("Não foi possível conectar ao servidor");
+  }
+}
+
+// Carregar imagens dos livros
+async function carregarImagensLivros() {
+  for (const book of state.books) {
+    try {
+      const response = await fetch(`/api/livro/${book.id}/imagens`);
+      const data = await response.json();
+
+      if (data.success && data.imagens) {
+        state.bookImages[book.id] = data.imagens;
+      }
+    } catch (error) {
+      console.error(`Erro ao carregar imagens do livro ${book.id}:`, error);
+    }
+  }
+}
+
+// Mostrar erro
+function showError(message) {
+  elements.bookList.innerHTML = `
+    <div style="grid-column: 1/-1; text-align: center; padding: 3rem;">
+      <svg style="width: 4rem; height: 4rem; color: #ef4444; margin: 0 auto 1rem;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+      </svg>
+      <p style="font-size: 1.25rem; font-weight: 600; color: #1f2937; margin-bottom: 0.5rem;">${message}</p>
+      <button onclick="carregarLivros()" style="margin-top: 1rem; padding: 0.5rem 1rem; background: #3b82f6; color: white; border: none; border-radius: 0.5rem; cursor: pointer;">
+        Tentar Novamente
+      </button>
+    </div>
+  `;
+}
+
+// Obter imagem do livro
+function getBookImage(bookId) {
+  const images = state.bookImages[bookId];
+  if (images && images.length > 0) {
+    const capa = images.find((img) => img.tipo === "capa");
+    return capa ? capa.caminho_imagem : images[0].caminho_imagem;
+  }
+  return null;
+}
+
 // Algoritmo de busca fuzzy
 function fuzzyMatch(str, pattern) {
   const strLower = str.toLowerCase();
   const patternLower = pattern.toLowerCase();
 
-  // Busca exata tem prioridade
   if (strLower.includes(patternLower)) {
     return 100;
   }
 
-  // Busca fuzzy - permite alguns erros
   let score = 0;
   let patternIdx = 0;
 
@@ -191,12 +152,10 @@ function fuzzyMatch(str, pattern) {
 
 // Algoritmo de filtragem e ordenação
 function getFilteredAndSortedBooks() {
-  const result = books.filter((book) => {
-    // Filtro por gênero
+  const result = state.books.filter((book) => {
     const matchesGenre =
       state.selectedGenre === "all" || book.genre === state.selectedGenre;
 
-    // Filtro por busca com algoritmo fuzzy
     if (!state.debouncedSearch) {
       return matchesGenre;
     }
@@ -207,7 +166,6 @@ function getFilteredAndSortedBooks() {
     return matchesGenre && (titleScore > 0 || authorScore > 0);
   });
 
-  // Algoritmo de ordenação
   result.sort((a, b) => {
     switch (state.sortBy) {
       case "title":
@@ -230,12 +188,12 @@ function getFilteredAndSortedBooks() {
 
 // Sistema de recomendações
 function getRecommendations(bookId) {
-  const book = books.find((b) => b.id === bookId);
+  const book = state.books.find((b) => b.id === bookId);
   if (!book) {
     return [];
   }
 
-  return books
+  return state.books
     .filter((b) => b.id !== bookId && b.genre === book.genre)
     .slice(0, 3);
 }
@@ -248,9 +206,18 @@ function toggleFavorite(bookId) {
   } else {
     state.favorites.push(bookId);
   }
+  localStorage.setItem("favorites", JSON.stringify(state.favorites));
   renderBooks();
   if (state.selectedBook && state.selectedBook.id === bookId) {
     updateModalFavoriteButton();
+  }
+}
+
+// Carregar favoritos do localStorage
+function loadFavorites() {
+  const saved = localStorage.getItem("favorites");
+  if (saved) {
+    state.favorites = JSON.parse(saved);
   }
 }
 
@@ -299,14 +266,22 @@ function createBookCard(book) {
 
   const imageContent = document.createElement("div");
   imageContent.className = "book-image-content";
-  imageContent.style.backgroundColor = getBookColor(book.id);
 
-  imageContent.innerHTML = `
-    <svg class="book-image-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
-    </svg>
-    <p class="book-image-title">${book.title}</p>
-  `;
+  const bookImage = getBookImage(book.id);
+
+  if (bookImage) {
+    imageContent.style.backgroundImage = `url(${bookImage})`;
+    imageContent.style.backgroundSize = "cover";
+    imageContent.style.backgroundPosition = "center";
+  } else {
+    imageContent.style.backgroundColor = getBookColor(book.id);
+    imageContent.innerHTML = `
+      <svg class="book-image-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
+      </svg>
+      <p class="book-image-title">${book.title}</p>
+    `;
+  }
 
   imageWrapper.appendChild(imageContent);
 
@@ -391,23 +366,30 @@ function openBookModal(book) {
   state.selectedBook = book;
   elements.tradeMessage.value = "";
 
-  // Atualizar imagem
   const modalImage = document.getElementById("modalBookImage");
-  modalImage.style.backgroundColor = getBookColor(book.id);
-  modalImage.innerHTML = `
-    <svg style="width: 5rem; height: 5rem; color: white; opacity: 0.5; margin-bottom: 0.75rem;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
-    </svg>
-    <p style="color: white; font-weight: 700; opacity: 0.75;">${book.title}</p>
-  `;
+  const bookImage = getBookImage(book.id);
 
-  // Atualizar informações
+  if (bookImage) {
+    modalImage.style.backgroundImage = `url(${bookImage})`;
+    modalImage.style.backgroundSize = "cover";
+    modalImage.style.backgroundPosition = "center";
+    modalImage.innerHTML = "";
+  } else {
+    modalImage.style.backgroundColor = getBookColor(book.id);
+    modalImage.style.backgroundImage = "none";
+    modalImage.innerHTML = `
+      <svg style="width: 5rem; height: 5rem; color: white; opacity: 0.5; margin-bottom: 0.75rem;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
+      </svg>
+      <p style="color: white; font-weight: 700; opacity: 0.75;">${book.title}</p>
+    `;
+  }
+
   document.getElementById("modalBookTitle").textContent = book.title;
   document.getElementById("modalBookAuthor").textContent = book.author;
   document.getElementById("modalBookDescription").textContent =
     book.description;
 
-  // Atualizar tags
   document.getElementById("modalBookTags").innerHTML = `
     <span class="tag tag-genre">${book.genre}</span>
     <span class="tag tag-year">
@@ -419,13 +401,12 @@ function openBookModal(book) {
     <span class="tag" style="background: rgba(16, 185, 129, 0.1); color: #10b981;">${book.condition}</span>
   `;
 
-  // Atualizar detalhes
   document.getElementById("modalBookDetails").innerHTML = `
-    <p><strong>Páginas:</strong> ${book.pages}</p>
+    <p><strong>ISBN:</strong> ${book.isbn}</p>
     <p><strong>Estado:</strong> ${book.condition}</p>
+    <p><strong>Nacionalidade do Autor:</strong> ${book.nationality}</p>
   `;
 
-  // Atualizar informações do dono
   document.getElementById("modalOwnerInfo").innerHTML = `
     <p>
       <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -439,15 +420,8 @@ function openBookModal(book) {
       </svg>
       ${book.ownerEmail}
     </p>
-    <p>
-      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path>
-      </svg>
-      ${book.ownerPhone}
-    </p>
   `;
 
-  // Atualizar recomendações
   const recommendations = getRecommendations(book.id);
   const recoSection = document.getElementById("modalRecommendations");
   const recoList = document.getElementById("recommendationsList");
@@ -455,21 +429,30 @@ function openBookModal(book) {
   if (recommendations.length > 0) {
     recoSection.style.display = "block";
     recoList.innerHTML = recommendations
-      .map(
-        (rec) => `
-      <div class="recommendation-card" onclick="openBookModal(books.find(b => b.id === ${rec.id}))">
-        <div class="recommendation-image" style="background-color: ${getBookColor(rec.id)};">
-          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      .map((rec) => {
+        const recImage = getBookImage(rec.id);
+        const recImageStyle = recImage
+          ? `background-image: url(${recImage}); background-size: cover; background-position: center;`
+          : `background-color: ${getBookColor(rec.id)};`;
+
+        return `
+      <div class="recommendation-card" onclick="openBookModal(state.books.find(b => b.id === ${rec.id}))">
+        <div class="recommendation-image" style="${recImageStyle}">
+          ${
+            !recImage
+              ? `<svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
-          </svg>
+          </svg>`
+              : ""
+          }
         </div>
         <div class="recommendation-info">
           <p class="recommendation-title">${rec.title}</p>
           <p class="recommendation-author">${rec.author}</p>
         </div>
       </div>
-    `
-      )
+    `;
+      })
       .join("");
   } else {
     recoSection.style.display = "none";
@@ -504,14 +487,8 @@ function sendTradeRequest() {
     return;
   }
 
-  const recommendations = getRecommendations(state.selectedBook.id);
-  const recoText =
-    recommendations.length > 0
-      ? `\n\n📚 Livros relacionados que você pode gostar: ${recommendations.map((r) => r.title).join(", ")}`
-      : "";
-
   alert(
-    `✅ Solicitação enviada para ${state.selectedBook.owner}!\n\nLivro: "${state.selectedBook.title}"\nSua mensagem: "${message}"${recoText}\n\n${state.selectedBook.owner} receberá sua proposta em ${state.selectedBook.ownerEmail}`
+    `Solicitação enviada para ${state.selectedBook.owner}!\n\nLivro: "${state.selectedBook.title}"\nSua mensagem: "${message}"\n\n${state.selectedBook.owner} receberá sua proposta em ${state.selectedBook.ownerEmail}`
   );
 
   closeBookModal();
@@ -521,12 +498,10 @@ function sendTradeRequest() {
 function handleSearchInput(value) {
   state.searchTerm = value;
 
-  // Limpar timer anterior
   if (state.debounceTimer) {
     clearTimeout(state.debounceTimer);
   }
 
-  // Definir novo timer
   state.debounceTimer = setTimeout(() => {
     state.debouncedSearch = value;
     renderBooks();
@@ -544,8 +519,14 @@ function setViewMode(mode) {
 
 // Inicializar filtros
 function initializeFilters() {
-  // Preencher gêneros
-  const genres = Array.from(new Set(books.map((book) => book.genre))).sort();
+  const genres = Array.from(
+    new Set(state.books.map((book) => book.genre))
+  ).sort();
+
+  elements.genreSelect.innerHTML =
+    '<option value="all">Todos os gêneros</option>';
+  elements.genreSelectMobile.innerHTML =
+    '<option value="all">Todos os gêneros</option>';
 
   genres.forEach((genre) => {
     const option = document.createElement("option");
@@ -607,5 +588,5 @@ document.getElementById("modalFavoriteBtn").addEventListener("click", () => {
 elements.sendTradeBtn.addEventListener("click", sendTradeRequest);
 
 // Inicialização
-initializeFilters();
-renderBooks();
+loadFavorites();
+carregarLivros();

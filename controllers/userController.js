@@ -1,5 +1,5 @@
-const js = require("@eslint/js");
 const db = require("../db/database");
+const bcrypt = require("bcrypt");
 
 exports.cadastrarLivro = async (req, res) => {
   try {
@@ -162,6 +162,171 @@ exports.listarMeusLivros = async (req, res) => {
     res.status(500).json({
       success: false,
       message: "Erro no servidor",
+    });
+  }
+};
+
+exports.obterPerfil = async (req, res) => {
+  try {
+    if (!req.session || !req.session.usuario) {
+      return res.status(401).json({
+        success: false,
+        message: "Usuário não autenticado",
+      });
+    }
+
+    const id_usuario = req.session.usuario.id;
+
+    const [usuarios] = await db.query(
+      `SELECT u.id_usuario, u.nome, u.email, u.cpf, u.status,
+              e.cep, e.rua, e.numero, e.bairro, e.cidade,
+              t.telefone
+       FROM usuario u
+       LEFT JOIN endereco e ON u.id_endereco = e.id_endereco
+       LEFT JOIN usuario_telefone t ON u.id_usuario = t.id_usuario
+       WHERE u.id_usuario = ?`,
+      [id_usuario]
+    );
+
+    if (usuarios.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "Usuário não encontrado",
+      });
+    }
+
+    res.json({
+      success: true,
+      usuario: usuarios[0],
+    });
+  } catch (err) {
+    console.error("Erro ao obter perfil:", err);
+    res.status(500).json({
+      success: false,
+      message: "Erro no servidor",
+    });
+  }
+};
+
+exports.atualizarPerfil = async (req, res) => {
+  try {
+    if (!req.session || !req.session.usuario) {
+      return res.status(401).json({
+        success: false,
+        message: "Usuário não autenticado",
+      });
+    }
+
+    const id_usuario = req.session.usuario.id;
+    const {
+      nome,
+      email,
+      telefone,
+      cep,
+      rua,
+      numero,
+      bairro,
+      cidade,
+      senhaAtual,
+      novaSenha,
+    } = req.body;
+
+    // Validação básica
+    if (!nome || !email) {
+      return res.status(400).json({
+        success: false,
+        message: "Nome e email são obrigatórios",
+      });
+    }
+
+    // Se estiver alterando senha, validar senha atual
+    if (novaSenha) {
+      if (!senhaAtual) {
+        return res.status(400).json({
+          success: false,
+          message: "Senha atual é obrigatória para alterar a senha",
+        });
+      }
+
+      // Verificar senha atual
+      const [usuarios] = await db.query(
+        "SELECT senha FROM usuario WHERE id_usuario = ?",
+        [id_usuario]
+      );
+
+      if (usuarios.length === 0) {
+        return res.status(404).json({
+          success: false,
+          message: "Usuário não encontrado",
+        });
+      }
+
+      const senhaCorreta = await bcrypt.compare(senhaAtual, usuarios[0].senha);
+
+      if (!senhaCorreta) {
+        return res.status(400).json({
+          success: false,
+          message: "Senha atual incorreta",
+        });
+      }
+
+      // Criptografar nova senha
+      const novaSenhaHash = await bcrypt.hash(novaSenha, 10);
+
+      // Atualizar senha
+      await db.query("UPDATE usuario SET senha = ? WHERE id_usuario = ?", [
+        novaSenhaHash,
+        id_usuario,
+      ]);
+    }
+
+    // Atualizar dados do usuário
+    await db.query(
+      "UPDATE usuario SET nome = ?, email = ? WHERE id_usuario = ?",
+      [nome, email, id_usuario]
+    );
+
+    // Atualizar telefone
+    if (telefone) {
+      await db.query(
+        "UPDATE usuario_telefone SET telefone = ? WHERE id_usuario = ?",
+        [telefone, id_usuario]
+      );
+    }
+
+    // Atualizar endereço
+    if (cep && rua && numero && bairro && cidade) {
+      const cepLimpo = cep.replace(/\D/g, "");
+
+      // Obter id_endereco do usuário
+      const [usuarios] = await db.query(
+        "SELECT id_endereco FROM usuario WHERE id_usuario = ?",
+        [id_usuario]
+      );
+
+      if (usuarios.length > 0 && usuarios[0].id_endereco) {
+        await db.query(
+          "UPDATE endereco SET cep = ?, rua = ?, numero = ?, bairro = ?, cidade = ? WHERE id_endereco = ?",
+          [cepLimpo, rua, numero, bairro, cidade, usuarios[0].id_endereco]
+        );
+      }
+    }
+
+    // Atualizar sessão
+    req.session.usuario.nome = nome;
+    req.session.usuario.email = email;
+
+    res.json({
+      success: true,
+      message: "Perfil atualizado com sucesso!",
+    });
+
+    console.log(`Perfil atualizado: ${nome} (ID: ${id_usuario})`);
+  } catch (err) {
+    console.error("Erro ao atualizar perfil:", err);
+    res.status(500).json({
+      success: false,
+      message: "Erro ao atualizar perfil: " + err.message,
     });
   }
 };
