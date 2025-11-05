@@ -51,7 +51,7 @@ exports.cadastrarLivro = async (req, res) => {
     // Buscar ou criar autor
     let id_autor;
     const [autorExistente] = await db.query(
-      "SELECT id_autor FROM autor WHERE nome = ? AND nacionalidade = ?",
+      "SELECT id_autor FROM Autor WHERE nome = ? AND nacionalidade = ?",
       [nome_autor, nacionalidade_autor]
     );
 
@@ -59,7 +59,7 @@ exports.cadastrarLivro = async (req, res) => {
       id_autor = autorExistente[0].id_autor;
     } else {
       const [novoAutor] = await db.query(
-        "INSERT INTO autor (nome, nacionalidade) VALUES (?, ?)",
+        "INSERT INTO Autor (nome, nacionalidade) VALUES (?, ?)",
         [nome_autor, nacionalidade_autor]
       );
       id_autor = novoAutor.insertId;
@@ -68,7 +68,7 @@ exports.cadastrarLivro = async (req, res) => {
     // Buscar ou criar gênero
     let id_genero;
     const [generoExistente] = await db.query(
-      "SELECT id_genero FROM genero WHERE nome = ?",
+      "SELECT id_genero FROM Genero WHERE nome = ?",
       [nome_genero]
     );
 
@@ -76,7 +76,7 @@ exports.cadastrarLivro = async (req, res) => {
       id_genero = generoExistente[0].id_genero;
     } else {
       const [novoGenero] = await db.query(
-        "INSERT INTO genero (nome) VALUES (?)",
+        "INSERT INTO Genero (nome) VALUES (?)",
         [nome_genero]
       );
       id_genero = novoGenero.insertId;
@@ -85,10 +85,10 @@ exports.cadastrarLivro = async (req, res) => {
     // Obter caminho da capa
     const imagemCapa = "/uploads/livros/" + req.files.capa[0].filename;
 
-    // Inserir livro
+    // Inserir livro (SEM id_genero direto, pois não existe essa coluna segundo o schema)
     const data_postagem = new Date();
     const [livroResult] = await db.query(
-      "INSERT INTO livro (titulo, descricao, ano_publicacao, isbn, estado, data_postagem, id_usuario, id_autor, id_genero, aprovado, observacao_revisao) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, NULL, NULL)",
+      "INSERT INTO Livro (titulo, descricao, ano_publicacao, isbn, estado, data_postagem, id_usuario, id_autor, aprovado, observacao_revisao) VALUES (?, ?, ?, ?, ?, ?, ?, ?, NULL, NULL)",
       [
         titulo,
         descricao,
@@ -98,11 +98,16 @@ exports.cadastrarLivro = async (req, res) => {
         data_postagem,
         id_usuario,
         id_autor,
-        id_genero,
       ]
     );
 
     const id_livro = livroResult.insertId;
+
+    // Inserir relacionamento na tabela Livro_genero
+    await db.query(
+      "INSERT INTO Livro_genero (id_livro, id_genero) VALUES (?, ?)",
+      [id_livro, id_genero]
+    );
 
     // Inserir capa na tabela Livro_imagem
     await db.query(
@@ -117,7 +122,7 @@ exports.cadastrarLivro = async (req, res) => {
           "/uploads/livros/" + req.files.imagens[i].filename;
         await db.query(
           "INSERT INTO Livro_imagem (id_livro, caminho_imagem, tipo) VALUES (?, ?, ?)",
-          [id_livro, caminhoImagem, "adicional", i + 1]
+          [id_livro, caminhoImagem, "adicional"]
         );
       }
     }
@@ -149,11 +154,12 @@ exports.listarMeusLivros = async (req, res) => {
     const id_usuario = req.session.usuario.id;
     const [results] = await db.query(
       `SELECT l.id_livro, l.titulo, l.descricao, l.ano_publicacao, l.isbn, l.estado, l.data_postagem, l.aprovado, l.observacao_revisao,
-                    a.nome AS nome_autor, a.nacionalidade AS nacionalidade_autor, g.nome AS nome_genero
-            FROM livro l 
-                INNER JOIN autor a ON l.id_autor = a.id_autor
-                INNER JOIN genero g ON l.id_genero = g.id_genero
-            WHERE l.id_usuario = ?`,
+              a.nome AS nome_autor, a.nacionalidade AS nacionalidade_autor, g.nome AS nome_genero
+       FROM Livro l 
+       INNER JOIN Autor a ON l.id_autor = a.id_autor
+       INNER JOIN Livro_genero lg ON l.id_livro = lg.id_livro
+       INNER JOIN Genero g ON lg.id_genero = g.id_genero
+       WHERE l.id_usuario = ?`,
       [id_usuario]
     );
     res.json({ success: true, livros: results });
@@ -181,9 +187,9 @@ exports.obterPerfil = async (req, res) => {
       `SELECT u.id_usuario, u.nome, u.email, u.cpf, u.status,
               e.cep, e.rua, e.numero, e.bairro, e.cidade,
               t.telefone
-       FROM usuario u
-       LEFT JOIN endereco e ON u.id_endereco = e.id_endereco
-       LEFT JOIN usuario_telefone t ON u.id_usuario = t.id_usuario
+       FROM Usuario u
+       LEFT JOIN Endereco e ON u.id_endereco = e.id_endereco
+       LEFT JOIN Usuario_telefone t ON u.id_usuario = t.id_usuario
        WHERE u.id_usuario = ?`,
       [id_usuario]
     );
@@ -250,7 +256,7 @@ exports.atualizarPerfil = async (req, res) => {
 
       // Verificar senha atual
       const [usuarios] = await db.query(
-        "SELECT senha FROM usuario WHERE id_usuario = ?",
+        "SELECT senha FROM Usuario WHERE id_usuario = ?",
         [id_usuario]
       );
 
@@ -274,7 +280,7 @@ exports.atualizarPerfil = async (req, res) => {
       const novaSenhaHash = await bcrypt.hash(novaSenha, 10);
 
       // Atualizar senha
-      await db.query("UPDATE usuario SET senha = ? WHERE id_usuario = ?", [
+      await db.query("UPDATE Usuario SET senha = ? WHERE id_usuario = ?", [
         novaSenhaHash,
         id_usuario,
       ]);
@@ -282,16 +288,29 @@ exports.atualizarPerfil = async (req, res) => {
 
     // Atualizar dados do usuário
     await db.query(
-      "UPDATE usuario SET nome = ?, email = ? WHERE id_usuario = ?",
+      "UPDATE Usuario SET nome = ?, email = ? WHERE id_usuario = ?",
       [nome, email, id_usuario]
     );
 
     // Atualizar telefone
     if (telefone) {
-      await db.query(
-        "UPDATE usuario_telefone SET telefone = ? WHERE id_usuario = ?",
-        [telefone, id_usuario]
+      // Verificar se já existe um telefone cadastrado
+      const [telefoneExistente] = await db.query(
+        "SELECT id_telefone FROM Usuario_telefone WHERE id_usuario = ?",
+        [id_usuario]
       );
+
+      if (telefoneExistente.length > 0) {
+        await db.query(
+          "UPDATE Usuario_telefone SET telefone = ? WHERE id_usuario = ?",
+          [telefone, id_usuario]
+        );
+      } else {
+        await db.query(
+          "INSERT INTO Usuario_telefone (id_usuario, telefone) VALUES (?, ?)",
+          [id_usuario, telefone]
+        );
+      }
     }
 
     // Atualizar endereço
@@ -300,13 +319,13 @@ exports.atualizarPerfil = async (req, res) => {
 
       // Obter id_endereco do usuário
       const [usuarios] = await db.query(
-        "SELECT id_endereco FROM usuario WHERE id_usuario = ?",
+        "SELECT id_endereco FROM Usuario WHERE id_usuario = ?",
         [id_usuario]
       );
 
       if (usuarios.length > 0 && usuarios[0].id_endereco) {
         await db.query(
-          "UPDATE endereco SET cep = ?, rua = ?, numero = ?, bairro = ?, cidade = ? WHERE id_endereco = ?",
+          "UPDATE Endereco SET cep = ?, rua = ?, numero = ?, bairro = ?, cidade = ? WHERE id_endereco = ?",
           [cepLimpo, rua, numero, bairro, cidade, usuarios[0].id_endereco]
         );
       }

@@ -10,6 +10,7 @@ const state = {
   debounceTimer: null,
   books: [],
   bookImages: {},
+  usuarioAutenticado: null,
 };
 
 // Elementos do DOM
@@ -42,9 +43,47 @@ const bookColors = [
   "#ef4444",
 ];
 
+document.addEventListener("DOMContentLoaded", initTabs);
+
+function initTabs() {
+  const tabButtons = document.querySelectorAll(".tab-btn");
+  const sections = document.querySelectorAll(".section");
+
+  tabButtons.forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const targetTab = btn.dataset.tab;
+
+      // Remove active de todos
+      tabButtons.forEach((b) => b.classList.remove("active"));
+      sections.forEach((s) => s.classList.remove("active"));
+
+      // Adiciona active no selecionado
+      btn.classList.add("active");
+      const targetSection = document.getElementById(`section-${targetTab}`);
+      if (targetSection) {
+        targetSection.classList.add("active");
+      }
+    });
+  });
+}
+
 // Função para obter cor baseada no ID
 function getBookColor(id) {
   return bookColors[id % bookColors.length];
+}
+
+// Verificar sessão do usuário
+async function verificarSessao() {
+  try {
+    const response = await fetch("/api/auth/verificar-sessao");
+    const data = await response.json();
+
+    if (data.success && data.autenticado) {
+      state.usuarioAutenticado = data.usuario;
+    }
+  } catch (error) {
+    console.error("Erro ao verificar sessão:", error);
+  }
 }
 
 // Carregar livros do backend
@@ -213,7 +252,7 @@ function toggleFavorite(bookId) {
   }
 }
 
-// Carregar favoritos do localStorage
+// TODO ALTERAR ! PRECISA ALTERAR NO BANCO
 function loadFavorites() {
   const saved = localStorage.getItem("favorites");
   if (saved) {
@@ -479,7 +518,7 @@ function closeBookModal() {
 }
 
 // Enviar solicitação de troca
-function sendTradeRequest() {
+async function sendTradeRequest() {
   const message = elements.tradeMessage.value.trim();
 
   if (!message) {
@@ -487,11 +526,37 @@ function sendTradeRequest() {
     return;
   }
 
-  alert(
-    `Solicitação enviada para ${state.selectedBook.owner}!\n\nLivro: "${state.selectedBook.title}"\nSua mensagem: "${message}"\n\n${state.selectedBook.owner} receberá sua proposta em ${state.selectedBook.ownerEmail}`
-  );
+  if (!state.usuarioAutenticado) {
+    alert("Você precisa estar autenticado para solicitar uma troca!");
+    return;
+  }
 
-  closeBookModal();
+  try {
+    const response = await fetch("/api/trade/solicitar", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        id_livro_solicitado: state.selectedBook.id,
+        mensagem: message,
+      }),
+    });
+
+    const data = await response.json();
+
+    if (data.success) {
+      alert(
+        `Solicitação enviada com sucesso para ${state.selectedBook.owner}!`
+      );
+      closeBookModal();
+    } else {
+      alert(data.message || "Erro ao enviar solicitação");
+    }
+  } catch (error) {
+    console.error("Erro ao enviar solicitação:", error);
+    alert("Erro ao enviar solicitação. Tente novamente.");
+  }
 }
 
 // Debounce para busca
@@ -588,5 +653,10 @@ document.getElementById("modalFavoriteBtn").addEventListener("click", () => {
 elements.sendTradeBtn.addEventListener("click", sendTradeRequest);
 
 // Inicialização
-loadFavorites();
-carregarLivros();
+async function inicializar() {
+  await verificarSessao();
+  loadFavorites();
+  await carregarLivros();
+}
+
+inicializar();

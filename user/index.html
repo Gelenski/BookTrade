@@ -32,6 +32,8 @@
             <a href="#">Catálogo</a>
             <a href="#">Meus Livros</a>
             <a href="#">Trocas</a>
+            <a href="#">Cadastrar Livro</a>
+            <a href="#">Perfil</a>
           </nav>
         </div>
       </div>
@@ -174,6 +176,87 @@
         <p class="no-results-subtitle">Tente ajustar os filtros ou busca</p>
       </div>
     </main>
+
+    <section id="section-meus-livros" class="section">
+      <div class="page-header">
+        <h2>Meus Livros</h2>
+        <p>Gerencie os livros que você cadastrou para troca.</p>
+      </div>
+
+      <div id="meusLivrosList" class="book-list grid-view"></div>
+
+      <div id="noMyBooks" class="no-results" style="display: none">
+        <p class="no-results-title">Você ainda não cadastrou nenhum livro.</p>
+        <p class="no-results-subtitle">
+          Use a aba “Cadastrar Livro” para adicionar o primeiro!
+        </p>
+      </div>
+    </section>
+
+    <section id="section-cadastro-livro" class="section">
+      <div class="page-header">
+        <h2>Cadastrar Novo Livro</h2>
+        <p>Adicione um livro ao catálogo para troca com outros usuários.</p>
+      </div>
+
+      <form id="bookForm" class="book-form">
+        <div class="form-group">
+          <label for="bookTitle">Título do Livro</label>
+          <input id="bookTitle" type="text" required />
+        </div>
+
+        <div class="form-group">
+          <label for="bookAuthor">Autor</label>
+          <input id="bookAuthor" type="text" required />
+        </div>
+
+        <div class="form-group">
+          <label for="authorNationality">Nacionalidade do autor</label>
+          <input id="authorNationality" type="text" required />
+        </div>
+
+        <div class="form-group">
+          <label for="bookIsbn">ISBN</label>
+          <input id="bookIsbn" type="text" required />
+        </div>
+
+        <div class="form-group">
+          <label for="bookGenre">Gênero</label>
+          <select id="bookGenre" required>
+            <option value="" disabled selected>Selecione um gênero</option>
+            <option value="Outro">Outro</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="bookYear">Ano de Publicação</label>
+          <input id="bookYear" type="number" min="0" max="2024" required />
+        </div>
+        <div class="form-group">
+          <label for="bookDescription">Descrição</label>
+          <textarea id="bookDescription" rows="4" required></textarea>
+        </div>
+        <div class="form-group">
+          <label for="bookImage">Imagem da Capa</label>
+          <input id="bookImage" type="file" required />
+        </div>
+        <button type="submit" class="btn-submit">
+          <svg
+            class="icon"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M5 13l4 4L19 7"
+            ></path>
+          </svg>
+          Cadastrar Livro
+        </button>
+      </form>
+    </section>
 
     <!-- Modal de Detalhes -->
     <div id="bookModal" class="modal" style="display: none">
