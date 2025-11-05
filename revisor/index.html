@@ -4,71 +4,84 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Dashboard Gestor</title>
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
-     <nav class="barra-navegacao">
-        <div class="logo">
-            <svg viewBox="0 0 24 24">
-                <path d="M21 4H3C1.9 4 1 4.9 1 6v12c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zM3 18V6h8v12H3zm18 0h-8V6h8v12z"/>
-            </svg>
-            BookTrade
-        </div>
-        <ul class="links-navegacao">
-            <li><a href="#">Catálogo</a></li>
-            <li><a href="#">Meus Livros</a></li>
-            <li><a href="#" style="color: #3b82f6;">Painel Revisor</a></li>
-        </ul>
+    <nav class="barra-navegacao">
+      <div class="logo">
+        <svg viewBox="0 0 24 24">
+          <path
+            d="M21 4H3C1.9 4 1 4.9 1 6v12c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zM3 18V6h8v12H3zm18 0h-8V6h8v12z"
+          />
+        </svg>
+        BookTrade
+      </div>
+      <ul class="links-navegacao">
+        <li><a href="#">Catálogo</a></li>
+        <li><a href="#">Meus Livros</a></li>
+        <li><a href="#" style="color: #3b82f6">Painel Revisor</a></li>
+      </ul>
     </nav>
 
     <div class="container">
-        <div class="cabecalho">
-            <h1>Painel do Revisor</h1>
-            <p style="color: #718096; font-size: 1.125rem;">Revise e aprove os livros enviados pelos usuários</p>
-        </div>
+      <div class="cabecalho">
+        <h1>Painel do Revisor</h1>
+        <p style="color: #718096; font-size: 1.125rem">
+          Revise e aprove os livros enviados pelos usuários
+        </p>
+      </div>
 
-        <div class="estatisticas">
-            <div class="cartao-estatistica">
-                <h3>Pendentes</h3>
-                <p id="contagemPendentes">5</p>
-            </div>
-            <div class="cartao-estatistica">
-                <h3>Aprovados Hoje</h3>
-                <p id="contagemAprovados">3</p>
-            </div>
-            <div class="cartao-estatistica">
-                <h3>Reprovados Hoje</h3>
-                <p id="contagemReprovados">1</p>
-            </div>
+      <div class="estatisticas">
+        <div class="cartao-estatistica">
+          <h3>Pendentes</h3>
+          <p id="contagemPendentes">0</p>
         </div>
-
-        <div class="filtros">
-            <div class="grupo-filtros">
-                <button class="botao-filtro ativo" data-filtro="todos">Todos</button>
-                <button class="botao-filtro" data-filtro="pendente">Pendentes</button>
-                <button class="botao-filtro" data-filtro="aprovado">Aprovados</button>
-                <button class="botao-filtro" data-filtro="reprovado">Reprovados</button>
-            </div>
+        <div class="cartao-estatistica">
+          <h3>Aprovados Hoje</h3>
+          <p id="contagemAprovados">0</p>
         </div>
+        <div class="cartao-estatistica">
+          <h3>Reprovados Hoje</h3>
+          <p id="contagemReprovados">0</p>
+        </div>
+      </div>
 
-        <div class="lista-livros" id="listaLivros"></div>
+      <div class="filtros">
+        <div class="grupo-filtros">
+          <button class="botao-filtro ativo" data-filtro="todos">Todos</button>
+          <button class="botao-filtro" data-filtro="pendente">Pendentes</button>
+          <button class="botao-filtro" data-filtro="aprovado">Aprovados</button>
+          <button class="botao-filtro" data-filtro="reprovado">
+            Reprovados
+          </button>
+        </div>
+      </div>
+
+      <div class="lista-livros" id="listaLivros"></div>
     </div>
 
     <div class="modal" id="modalReprovar">
-        <div class="conteudo-modal">
-            <div class="cabecalho-modal">Motivo da Reprovação</div>
-            <div class="corpo-modal">
-                <textarea id="motivoReprovacao" placeholder="Digite o motivo da reprovação..."></textarea>
-            </div>
-            <div class="acoes-modal">
-                <button class="botao botao-detalhes" onclick="fecharModal()">Cancelar</button>
-                <button class="botao botao-reprovar" onclick="confirmarReprovacao()">Confirmar Reprovação</button>
-            </div>
+      <div class="conteudo-modal">
+        <div class="cabecalho-modal">Motivo da Reprovação</div>
+        <div class="corpo-modal">
+          <textarea
+            id="motivoReprovacao"
+            placeholder="Digite o motivo da reprovação..."
+          ></textarea>
         </div>
+        <div class="acoes-modal">
+          <button class="botao botao-detalhes" onclick="fecharModal()">
+            Cancelar
+          </button>
+          <button class="botao botao-reprovar" onclick="confirmarReprovacao()">
+            Confirmar Reprovação
+          </button>
+        </div>
+      </div>
     </div>
 
     <div class="notificacao" id="notificacao">
-        <span id="textoNotificacao"></span>
+      <span id="textoNotificacao"></span>
     </div>
     <script src="script.js"></script>
   </body>
