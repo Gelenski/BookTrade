@@ -1,6 +1,9 @@
 <!doctype html>
+<!doctype html>
 <html lang="en">
   <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Redefinir senha</title>
@@ -8,17 +11,29 @@
     <script src="script.js" defer></script>
   </head>
   <body>
-    <form id="redefinirform" class="redefinir-form">
-      <h2>Redefinir senha</h2>
+    <nav class="barra-navegacao">
+      <div class="logo">
+        <svg viewBox="0 0 24 24">
+          <path
+            d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"
+          />
+        </svg>
+        BookTrade
+      </div>
+    </nav>
+    <main>
+      <form id="redefinirform" class="redefinir-form">
+        <h2>Redefinir senha</h2>
 
-      <label for="novasenha">Nova senha</label>
-      <input type="password" id="novasenha" />
+        <label for="novasenha">Nova senha</label>
+        <input type="password" id="novasenha" />
 
-      <label for="confirmarsenha">Confirmar senha</label>
-      <input type="password" id="confirmarsenha" />
+        <label for="confirmarsenha">Confirmar senha</label>
+        <input type="password" id="confirmarsenha" />
 
-      <button type="submit">Redefenir senha</button>
-      <div id="mensagem"></div>
-    </form>
+        <button type="submit">Redefinir senha</button>
+        <div id="mensagem"></div>
+      </form>
+    </main>
   </body>
 </html>

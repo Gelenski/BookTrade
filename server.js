@@ -32,6 +32,11 @@ app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 app.use("/api/auth", require("./routes/authRoutes"));
 app.use("/api/user", require("./routes/userRoutes"));
 app.use("/api/admin", require("./routes/adminRoutes"));
+app.use(express.static(__dirname));
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
+app.use("/api/auth", require("./routes/authRoutes"));
+app.use("/api/user", require("./routes/userRoutes"));
+app.use("/api/admin", require("./routes/adminRoutes"));
 
 function verificarAutenticacao(req, res, next) {
   if (req.session && req.session.usuario) {

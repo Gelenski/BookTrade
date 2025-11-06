@@ -7,7 +7,7 @@ const messageDiv = document.getElementById("message");
 // * Verifica se já está autenticado ao carregar a página
 document.addEventListener("DOMContentLoaded", async () => {
   try {
-    const response = await fetch("/api/verificar-sessao", {
+    const response = await fetch("/api/auth/verificar-sessao", {
       method: "GET",
       credentials: "include",
     });
@@ -52,7 +52,7 @@ loginForm.addEventListener("submit", async (e) => {
 
   try {
     // Fazer requisição para a API
-    const response = await fetch("http://localhost:3000/api/login", {
+    const response = await fetch("http://localhost:3000/api/auth/login", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -79,7 +79,6 @@ loginForm.addEventListener("submit", async (e) => {
         case "comum":
           url = "/user/index.html";
           break;
-        // ! Adicionar default se for necessário, por exemplo para a página de login ou home
       }
 
       setTimeout(() => {

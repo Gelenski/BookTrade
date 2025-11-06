@@ -8,55 +8,68 @@
     <script src="script.js" defer></script>
   </head>
   <body>
-    <form method="POST" action="/api/cadastro" class="cadastro-form">
-      <h2>Cadastro</h2>
-
-      <label for="input-nome">Nome</label>
-      <input type="text" name="nome" id="input-nome" required />
-
-      <label for="input-email">E-mail</label>
-      <input type="email" name="email" id="input-email" required />
-
-      <label for="input-telefone">Telefone</label>
-      <input type="tel" name="telefone" id="input-telefone" required />
-
-      <label for="input-cpf">CPF</label>
-      <input type="text" name="cpf" id="input-cpf" required />
-
-      <div class="endereco">
-        <div class="endereco-row">
-          <div class="field-large">
-            <label for="input-cep">CEP</label>
-            <input type="text" name="cep" id="input-cep" required />
-          </div>
-          <div class="field-small">
-            <label for="input-numero">Número</label>
-            <input type="text" name="numero" id="input-numero" required />
-          </div>
-        </div>
-
-        <label for="input-rua">Rua</label>
-        <input type="text" name="rua" id="input-rua" readonly />
-
-        <div class="endereco-row">
-          <div class="field">
-            <label for="input-bairro">Bairro</label>
-            <input type="text" name="bairro" id="input-bairro" readonly />
-          </div>
-          <div class="field-small">
-            <label for="input-cidade">Cidade</label>
-            <input type="text" name="cidade" id="input-cidade" readonly />
-          </div>
-        </div>
+    <nav class="barra-navegação">
+      <div class="logo">
+        <svg viewBox="0 0 24 24">
+          <path
+            d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"
+          />
+        </svg>
+        BookTrade
       </div>
+    </nav>
+    <main>
+      <form method="POST" action="/api/cadastro" class="cadastro-form">
+        <h2>Cadastro</h2>
 
-      <label for="input-senha">Senha</label>
-      <input type="password" name="senha" id="input-senha" required />
+        <label for="input-nome">Nome</label>
+        <input type="text" name="nome" id="input-nome" required />
 
-      <p>
-        * Ao cadastrar-se você concorda em receber notificações via e-mail e SMS
-      </p>
-      <button type="submit" id="button-submit">Cadastrar-se</button>
-    </form>
+        <label for="input-email">E-mail</label>
+        <input type="email" name="email" id="input-email" required />
+
+        <label for="input-telefone">Telefone</label>
+        <input type="tel" name="telefone" id="input-telefone" required />
+
+        <label for="input-cpf">CPF</label>
+        <input type="text" name="cpf" id="input-cpf" required />
+
+        <div class="endereco">
+          <div class="endereco-row">
+            <div class="field-large">
+              <label for="input-cep">CEP</label>
+              <input type="text" name="cep" id="input-cep" required />
+            </div>
+            <div class="field-small">
+              <label for="input-numero">Número</label>
+              <input type="text" name="numero" id="input-numero" required />
+            </div>
+          </div>
+
+          <label for="input-rua">Rua</label>
+          <input type="text" name="rua" id="input-rua" readonly />
+
+          <div class="endereco-row">
+            <div class="field">
+              <label for="input-bairro">Bairro</label>
+              <input type="text" name="bairro" id="input-bairro" readonly />
+            </div>
+            <div class="field-small">
+              <label for="input-cidade">Cidade</label>
+              <input type="text" name="cidade" id="input-cidade" readonly />
+            </div>
+          </div>
+        </div>
+
+        <label for="input-senha">Senha</label>
+        <input type="password" name="senha" id="input-senha" required />
+
+        <p>
+          * Ao cadastrar-se você concorda em receber notificações via e-mail e
+          SMS
+        </p>
+        <button type="submit" id="button-submit">Cadastrar-se</button>
+      </form>
+    </main>
   </body>
 </html>
