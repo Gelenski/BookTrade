@@ -134,26 +134,41 @@ exports.deletarUsuario = async (req, res) => {
       });
     }
 
-    // Deleta recuperação de senha
+    // Deleta todas as tabelas relacionadas
+    await db.query("DELETE FROM avaliacao WHERE id_usuario = ?", [userId]);
+
+    await db.query("DELETE FROM favorito WHERE id_usuario = ?", [userId]);
+
+    await db.query("DELETE FROM historico WHERE id_usuario = ?", [userId]);
+
+    // Deleta livros do usuário
+    await db.query("DELETE FROM livro WHERE id_usuario = ?", [userId]);
+
+    await db.query("DELETE FROM notificacao WHERE id_usuario = ?", [userId]);
+
+    await db.query("DELETE FROM ponto WHERE id_usuario = ?", [userId]);
+
     await db.query("DELETE FROM recuperacao_senha WHERE id_usuario = ?", [
       userId,
     ]);
 
-    // Deleta telefone
+    await db.query("DELETE FROM troca WHERE id_usuario = ?", [userId]);
+
     await db.query("DELETE FROM usuario_telefone WHERE id_usuario = ?", [
       userId,
     ]);
 
-    // Deleta usuário
     await db.query("DELETE FROM usuario WHERE id_usuario = ?", [userId]);
 
-    res
-      .status(200)
-      .json({ success: true, message: "Usuário deletado com sucesso!" });
+    res.status(200).json({
+      success: true,
+      message: "Usuário e todos os dados relacionados deletados com sucesso!",
+    });
   } catch (err) {
     console.error(err);
-    res
-      .status(500)
-      .json({ success: false, message: "Erro ao deletar: " + err.message });
+    res.status(500).json({
+      success: false,
+      message: "Erro ao deletar: " + err.message,
+    });
   }
 };

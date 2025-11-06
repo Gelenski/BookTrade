@@ -10,18 +10,7 @@ const state = {
   debounceTimer: null,
   books: [],
   bookImages: {},
-  usuarioAutenticado: {
-    nome: "João Silva",
-    email: "joao.silva@email.com",
-    cpf: "12345678900",
-    telefone: "41999887766",
-    cep: "80000000",
-    rua: "Rua das Flores",
-    numero: "123",
-    bairro: "Centro",
-    cidade: "Curitiba"
-  },
-  perfilOriginal: null,
+  usuarioAutenticado: null,
 };
 
 // Elementos do DOM
@@ -54,46 +43,28 @@ const bookColors = [
   "#ef4444",
 ];
 
-document.addEventListener("DOMContentLoaded", () => {
-  initNavigation();
-  inicializar();
-});
+document.addEventListener("DOMContentLoaded", initTabs);
 
-// Função para inicializar navegação
-function initNavigation() {
-  const navLinks = document.querySelectorAll(".desktop-nav a");
-  
-  navLinks.forEach((link) => {
-    link.addEventListener("click", (e) => {
-      e.preventDefault();
-      const sectionName = link.dataset.section;
-      navegarParaSecao(sectionName);
+function initTabs() {
+  const tabButtons = document.querySelectorAll(".tab-btn");
+  const sections = document.querySelectorAll(".section");
+
+  tabButtons.forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const targetTab = btn.dataset.tab;
+
+      // Remove active de todos
+      tabButtons.forEach((b) => b.classList.remove("active"));
+      sections.forEach((s) => s.classList.remove("active"));
+
+      // Adiciona active no selecionado
+      btn.classList.add("active");
+      const targetSection = document.getElementById(`section-${targetTab}`);
+      if (targetSection) {
+        targetSection.classList.add("active");
+      }
     });
   });
-}
-
-// Função para navegar entre seções
-function navegarParaSecao(sectionName) {
-  const sections = document.querySelectorAll(".section");
-  const navLinks = document.querySelectorAll(".desktop-nav a");
-  
-  sections.forEach((section) => section.classList.remove("active"));
-  navLinks.forEach((link) => link.classList.remove("active"));
-  
-  const targetSection = document.getElementById(`section-${sectionName}`);
-  if (targetSection) {
-    targetSection.classList.add("active");
-  }
-  
-  const activeLink = document.querySelector(`[data-section="${sectionName}"]`);
-  if (activeLink) {
-    activeLink.classList.add("active");
-  }
-  
-  // Se navegou para perfil, carregar dados
-  if (sectionName === "perfil") {
-    carregarDadosPerfil();
-  }
 }
 
 // Função para obter cor baseada no ID
@@ -109,206 +80,10 @@ async function verificarSessao() {
 
     if (data.success && data.autenticado) {
       state.usuarioAutenticado = data.usuario;
-      atualizarHeaderPerfil();
     }
   } catch (error) {
     console.error("Erro ao verificar sessão:", error);
   }
-}
-
-// Atualizar header do perfil
-function atualizarHeaderPerfil() {
-  if (state.usuarioAutenticado) {
-    document.getElementById("profileName").textContent = state.usuarioAutenticado.nome;
-    document.getElementById("profileEmail").textContent = state.usuarioAutenticado.email;
-  }
-}
-
-// Carregar dados do perfil
-async function carregarDadosPerfil() {
-  try {
-    const response = await fetch("/api/usuario/perfil");
-    const data = await response.json();
-
-    if (data.success) {
-      state.perfilOriginal = data.usuario;
-      preencherFormularioPerfil(data.usuario);
-    } else {
-      mostrarNotificacao("Erro ao carregar dados do perfil", "error");
-    }
-  } catch (error) {
-    console.error("Erro ao carregar perfil:", error);
-    mostrarNotificacao("Erro ao conectar com o servidor", "error");
-  }
-}
-
-// Preencher formulário do perfil
-function preencherFormularioPerfil(usuario) {
-  document.getElementById("profileNome").value = usuario.nome || "";
-  document.getElementById("profileCpf").value = formatarCPF(usuario.cpf || "");
-  document.getElementById("profileEmailEdit").value = usuario.email || "";
-  document.getElementById("profileTelefone").value = formatarTelefone(usuario.telefone || "");
-  document.getElementById("profileCep").value = formatarCEP(usuario.cep || "");
-  document.getElementById("profileRua").value = usuario.rua || "";
-  document.getElementById("profileNumero").value = usuario.numero || "";
-  document.getElementById("profileBairro").value = usuario.bairro || "";
-  document.getElementById("profileCidade").value = usuario.cidade || "";
-  
-  // Limpar campos de senha
-  document.getElementById("profileSenhaAtual").value = "";
-  document.getElementById("profileSenhaNova").value = "";
-  document.getElementById("profileSenhaConfirmar").value = "";
-}
-
-// Formatação de CPF
-function formatarCPF(cpf) {
-  cpf = cpf.replace(/\D/g, "");
-  if (cpf.length <= 11) {
-    cpf = cpf.replace(/(\d{3})(\d)/, "$1.$2");
-    cpf = cpf.replace(/(\d{3})(\d)/, "$1.$2");
-    cpf = cpf.replace(/(\d{3})(\d{1,2})$/, "$1-$2");
-  }
-  return cpf;
-}
-
-// Formatação de Telefone
-function formatarTelefone(telefone) {
-  telefone = telefone.replace(/\D/g, "");
-  if (telefone.length <= 11) {
-    telefone = telefone.replace(/(\d{2})(\d)/, "($1) $2");
-    telefone = telefone.replace(/(\d{5})(\d)/, "$1-$2");
-  }
-  return telefone;
-}
-
-// Formatação de CEP
-function formatarCEP(cep) {
-  cep = cep.replace(/\D/g, "");
-  if (cep.length <= 8) {
-    cep = cep.replace(/(\d{5})(\d)/, "$1-$2");
-  }
-  return cep;
-}
-
-// Aplicar máscaras nos inputs
-function aplicarMascaras() {
-  const cpfInput = document.getElementById("profileCpf");
-  const telefoneInput = document.getElementById("profileTelefone");
-  const cepInput = document.getElementById("profileCep");
-  
-  cpfInput.addEventListener("input", (e) => {
-    e.target.value = formatarCPF(e.target.value);
-  });
-  
-  telefoneInput.addEventListener("input", (e) => {
-    e.target.value = formatarTelefone(e.target.value);
-  });
-  
-  cepInput.addEventListener("input", (e) => {
-    e.target.value = formatarCEP(e.target.value);
-  });
-}
-
-// Salvar perfil
-async function salvarPerfil(e) {
-  e.preventDefault();
-  
-  const senhaAtual = document.getElementById("profileSenhaAtual").value;
-  const senhaNova = document.getElementById("profileSenhaNova").value;
-  const senhaConfirmar = document.getElementById("profileSenhaConfirmar").value;
-  
-  // Validar senhas se estiver alterando
-  if (senhaNova || senhaConfirmar) {
-    if (!senhaAtual) {
-      mostrarNotificacao("Digite sua senha atual para alterar a senha", "error");
-      return;
-    }
-    if (senhaNova !== senhaConfirmar) {
-      mostrarNotificacao("As senhas não coincidem", "error");
-      return;
-    }
-    if (senhaNova.length < 6) {
-      mostrarNotificacao("A nova senha deve ter pelo menos 6 caracteres", "error");
-      return;
-    }
-  }
-  
-  const dados = {
-    nome: document.getElementById("profileNome").value,
-    cpf: document.getElementById("profileCpf").value.replace(/\D/g, ""),
-    email: document.getElementById("profileEmailEdit").value,
-    telefone: document.getElementById("profileTelefone").value.replace(/\D/g, ""),
-    cep: document.getElementById("profileCep").value.replace(/\D/g, ""),
-    rua: document.getElementById("profileRua").value,
-    numero: document.getElementById("profileNumero").value,
-    bairro: document.getElementById("profileBairro").value,
-    cidade: document.getElementById("profileCidade").value,
-  };
-  
-  // Adicionar senha apenas se estiver alterando
-  if (senhaNova) {
-    dados.senhaAtual = senhaAtual;
-    dados.senhaNova = senhaNova;
-  }
-  
-  try {
-    const response = await fetch("/api/usuario/perfil", {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(dados),
-    });
-    
-    const result = await response.json();
-    
-    if (result.success) {
-      mostrarNotificacao("Perfil atualizado com sucesso!", "success");
-      state.usuarioAutenticado = result.usuario;
-      atualizarHeaderPerfil();
-      
-      // Limpar campos de senha
-      document.getElementById("profileSenhaAtual").value = "";
-      document.getElementById("profileSenhaNova").value = "";
-      document.getElementById("profileSenhaConfirmar").value = "";
-    } else {
-      mostrarNotificacao(result.message || "Erro ao atualizar perfil", "error");
-    }
-  } catch (error) {
-    console.error("Erro ao salvar perfil:", error);
-    mostrarNotificacao("Erro ao conectar com o servidor", "error");
-  }
-}
-
-// Cancelar edição do perfil
-function cancelarEdicaoPerfil() {
-  if (state.perfilOriginal) {
-    preencherFormularioPerfil(state.perfilOriginal);
-    mostrarNotificacao("Alterações canceladas", "info");
-  }
-}
-
-// Mostrar notificação
-function mostrarNotificacao(mensagem, tipo = "info") {
-  // Criar elemento de notificação
-  const notificacao = document.createElement("div");
-  notificacao.className = `notificacao notificacao-${tipo}`;
-  notificacao.textContent = mensagem;
-  
-  document.body.appendChild(notificacao);
-  
-  // Animar entrada
-  setTimeout(() => {
-    notificacao.classList.add("show");
-  }, 10);
-  
-  // Remover após 3 segundos
-  setTimeout(() => {
-    notificacao.classList.remove("show");
-    setTimeout(() => {
-      document.body.removeChild(notificacao);
-    }, 300);
-  }, 3000);
 }
 
 // Carregar livros do backend
@@ -332,7 +107,9 @@ async function carregarLivros() {
         nationality: livro.autor_nacionalidade,
       }));
 
+      // Carregar imagens de cada livro
       await carregarImagensLivros();
+
       initializeFilters();
       renderBooks();
     } else {
@@ -468,9 +245,18 @@ function toggleFavorite(bookId) {
   } else {
     state.favorites.push(bookId);
   }
+  localStorage.setItem("favorites", JSON.stringify(state.favorites));
   renderBooks();
   if (state.selectedBook && state.selectedBook.id === bookId) {
     updateModalFavoriteButton();
+  }
+}
+
+// TODO ALTERAR ! PRECISA ALTERAR NO BANCO
+function loadFavorites() {
+  const saved = localStorage.getItem("favorites");
+  if (saved) {
+    state.favorites = JSON.parse(saved);
   }
 }
 
@@ -868,13 +654,15 @@ elements.sendTradeBtn.addEventListener("click", sendTradeRequest);
 
 // Event Listeners do Perfil
 document.getElementById("profileForm").addEventListener("submit", salvarPerfil);
-document.getElementById("btnCancelarProfile").addEventListener("click", cancelarEdicaoPerfil);
+document
+  .getElementById("btnCancelarProfile")
+  .addEventListener("click", cancelarEdicaoPerfil);
 
 // Inicialização
 async function inicializar() {
   await verificarSessao();
+  loadFavorites();
   await carregarLivros();
-  aplicarMascaras();
 }
 
 inicializar();

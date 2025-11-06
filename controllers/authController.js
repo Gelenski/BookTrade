@@ -1,6 +1,7 @@
 const bcrypt = require("bcrypt");
 const db = require("../db/database");
 const enviarEmail = require("../utils/email");
+
 const { gerarToken, calcularExpiracao } = require("../utils/token");
 
 exports.verificarSessao = (req, res) => {

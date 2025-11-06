@@ -1,20 +1,65 @@
+// ==================== VARIÁVEIS GLOBAIS ====================
+let currentUser = null;
+let allBooks = [];
+let filteredBooks = [];
+let currentBookId = null;
+let currentTab = "pendentes";
 let livros = [];
 let filtroAtual = "todos";
 let idReprovacaoAtual = null;
 
-// Função para carregar livros do backend
-async function carregarLivros() {
+// ==================== INICIALIZAÇÃO ====================
+document.addEventListener("DOMContentLoaded", async () => {
+  currentUser = await protegerPagina(["revisor", "admin"]);
+  exibirNomeUsuario(currentUser, "nome-revisor");
+  initTabs();
+  initModalHandlers();
+  initFilters();
+  loadBooks();
+  loadGenres();
+});
+
+// ==================== NAVEGAÇÃO ENTRE ABAS ====================
+function initTabs() {
+  const tabButtons = document.querySelectorAll(".tab-btn");
+  const sections = document.querySelectorAll(".section");
+
+  tabButtons.forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const targetTab = btn.dataset.tab;
+      currentTab = targetTab;
+
+      tabButtons.forEach((b) => b.classList.remove("active"));
+      sections.forEach((s) => s.classList.remove("active"));
+
+      btn.classList.add("active");
+      const targetSection = document.getElementById(`section-${targetTab}`);
+      if (targetSection) {
+        targetSection.classList.add("active");
+      }
+
+      renderBooks();
+    });
+  });
+}
+
+// ==================== CARREGAMENTO DE DADOS ====================
+async function loadBooks() {
   try {
-    const response = await fetch("/api/livros-pendentes", {
-      method: "GET",
-      credentials: "include", // Importante para enviar cookies de sessão
-      headers: {
-        "Content-Type": "application/json",
-      },
+    showLoading();
+
+    const response = await fetch("/api/livros", {
+      credentials: "include",
     });
 
-    const data = await response.json();
+    if (response.status === 401) {
+      alert("Sessão expirada. Faça login novamente.");
+      window.location.href = "/login/index.html";
+      return;
+    }
 
+    const data = await response.json();
+    console.log("Livros carregados:", data);
     if (data.success) {
       // Mapear os dados do banco para o formato esperado pelo frontend
       livros = data.livros.map((livro) => ({
@@ -106,54 +151,66 @@ function renderizarLivros() {
     return;
   }
 
-  listaLivros.innerHTML = livrosFiltrados
-    .map(
-      (livro) => `
-        <div class="cartao-livro" data-status="${livro.status}">
-            <div class="capa-livro" style="background: ${livro.cor};">
-                <svg viewBox="0 0 24 24">
-                    <path d="M21 4H3C1.9 4 1 4.9 1 6v12c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zM3 18V6h8v12H3zm18 0h-8V6h8v12z"/>
-                </svg>
-            </div>
-            <div class="info-livro">
-                <div class="titulo-livro">${livro.titulo}</div>
-                <div class="autor-livro">${livro.autor}</div>
-                <div class="metadados-livro">
-                    <span class="etiqueta-meta">📚 ${livro.genero}</span>
-                    <span class="etiqueta-meta">📅 ${livro.ano}</span>
-                </div>
-                <div class="descricao-livro">${livro.descricao}</div>
-                ${
-                  livro.status === "reprovado" && livro.motivoReprovacao
-                    ? `
-                    <div style="margin-top: 0.75rem; padding: 0.75rem; background: #fee2e2; border-radius: 6px; color: #991b1b;">
-                        <strong>Motivo da reprovação:</strong> ${livro.motivoReprovacao}
-                    </div>
-                `
-                    : ""
-                }
-                <div class="enviado-por">Enviado por ${livro.enviadoPor} em ${new Date(livro.dataEnvio).toLocaleDateString("pt-BR")}</div>
-            </div>
-            <div class="acoes">
-                ${
-                  livro.status === "pendente"
-                    ? `
-                    <button class="botao botao-aprovar" onclick="aprovarLivro(${livro.id})">✓ Aprovar</button>
-                    <button class="botao botao-reprovar" onclick="abrirModalReprovar(${livro.id})">✗ Reprovar</button>
-                `
-                    : livro.status === "aprovado"
-                      ? `
-                    <button class="botao botao-aprovar" style="opacity: 0.6; cursor: default;">✓ Aprovado</button>
-                `
-                      : `
-                    <button class="botao botao-reprovar" style="opacity: 0.6; cursor: default;">✗ Reprovado</button>
-                `
-                }
-            </div>
-        </div>
-    `
-    )
-    .join("");
+  emptyState.style.display = "none";
+
+  booksToRender.forEach((book) => {
+    const card = createBookCard(book);
+    container.appendChild(card);
+  });
+}
+
+function createBookCard(book) {
+  const card = document.createElement("div");
+  card.className = "book-card";
+  card.onclick = () => openBookModal(book);
+
+  const statusClass = book.data_autorizacao
+    ? book.aprovado
+      ? "aprovado"
+      : "reprovado"
+    : "pendente";
+
+  const statusText = book.data_autorizacao
+    ? book.aprovado
+      ? "Aprovado"
+      : "Reprovado"
+    : "Pendente";
+
+  card.innerHTML = `
+    <span class="book-status ${statusClass}">${statusText}</span>
+    <h3 class="book-title">${book.titulo}</h3>
+    <p class="book-author">por ${book.autor_nome}</p>
+    <div class="book-info">
+      <div class="book-info-item">
+        <span class="book-info-label">Gênero:</span>
+        <span class="book-info-value">${book.genero_nome}</span>
+      </div>
+      <div class="book-info-item">
+        <span class="book-info-label">Ano:</span>
+        <span class="book-info-value">${book.ano_publicacao}</span>
+      </div>
+      <div class="book-info-item">
+        <span class="book-info-label">Estado:</span>
+        <span class="book-info-value">${capitalizeFirst(book.estado)}</span>
+      </div>
+      <div class="book-info-item">
+        <span class="book-info-label">Publicado em:</span>
+        <span class="book-info-value">${formatDate(book.data_postagem)}</span>
+      </div>
+    </div>
+  `;
+
+  return card;
+}
+
+function showLoading() {
+  const containers = ["books-pending", "books-approved", "books-rejected"];
+  containers.forEach((id) => {
+    const container = document.getElementById(id);
+    if (container) {
+      container.innerHTML = '<div class="loading">Carregando livros</div>';
+    }
+  });
 }
 
 async function aprovarLivro(id) {

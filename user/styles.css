@@ -1027,8 +1027,140 @@ main {
   display: flex;
 }
 
+<<<<<<< HEAD
 .section {
   display: none;
+=======
+.book-form {
+  background: var(--bg-secondary);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+  padding: 2rem;
+  max-width: 48rem;
+  margin: 0 auto;
+}
+
+.form-group {
+  margin-bottom: 1.5rem;
+}
+
+.form-group label {
+  display: block;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 0.5rem;
+  font-size: 0.875rem;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  font-size: 1rem;
+  font-family: inherit;
+  outline: none;
+  transition: var(--transition);
+  background: var(--bg-secondary);
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+.form-group textarea {
+  resize: vertical;
+  min-height: 6rem;
+}
+
+.form-group input[type="file"] {
+  padding: 0.5rem;
+  cursor: pointer;
+}
+
+.btn-submit {
+  width: 100%;
+  padding: 0.875rem 1.5rem;
+  background: var(--primary-color);
+  color: white;
+  border: none;
+  border-radius: var(--radius-md);
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  transition: var(--transition);
+  margin-top: 1rem;
+}
+
+.btn-submit:hover {
+  background: var(--primary-hover);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
+}
+
+.btn-submit:active {
+  transform: translateY(0);
+}
+
+/* My Books Section */
+.my-books-actions {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: auto;
+}
+
+.btn-edit,
+.btn-delete {
+  flex: 1;
+  padding: 0.625rem 1rem;
+  border: none;
+  border-radius: var(--radius-md);
+  font-weight: 600;
+  font-size: 0.875rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  transition: var(--transition);
+}
+
+.btn-edit {
+  background: var(--secondary-color);
+  color: white;
+}
+
+.btn-edit:hover {
+  background: #7c3aed;
+}
+
+.btn-delete {
+  background: var(--danger-color);
+  color: white;
+}
+
+.btn-delete:hover {
+  background: #dc2626;
+}
+
+/* Utility Classes */
+.mobile-only {
+  display: flex;
+}
+
+.section {
+  display: none;
+  padding: 2rem 0;
+>>>>>>> feature/catalogo
 }
 
 .section.active {
