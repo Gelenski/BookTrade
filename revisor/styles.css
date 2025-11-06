@@ -20,6 +20,14 @@ body {
   justify-content: space-between;
 }
 
+.logo svg {
+  width: 32px;
+  height: 32px;
+  fill: none;
+  stroke: #3b82f6;
+  stroke-width: 2;
+}
+
 .logo {
   display: flex;
   align-items: center;
@@ -27,12 +35,6 @@ body {
   font-size: 1.5rem;
   font-weight: bold;
   color: #2d3748;
-}
-
-.logo svg {
-  width: 32px;
-  height: 32px;
-  fill: #3b82f6;
 }
 
 .links-navegacao {
