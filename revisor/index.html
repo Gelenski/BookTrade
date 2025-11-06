@@ -4,286 +4,85 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Dashboard Revisor</title>
-    <link rel="stylesheet" href="../admin/styles.css" />
-    <script src="script.js" defer></script>
+    <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
-    <!-- Header -->
-    <header class="header">
-      <div class="container">
-        <div class="logo">
-          <svg viewBox="0 0 24 24">
-            <path
-              d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"
-            />
-          </svg>
-          <h1>Painel do Revisor</h1>
-        </div>
-        <div class="info-usuario">
-          <span id="nome-revisor"></span>
-          <button class="btn-logout" id="btn-logout">Sair</button>
-        </div>
+    <nav class="barra-navegacao">
+      <div class="logo">
+        <svg viewBox="0 0 24 24">
+          <path
+            d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"
+          />
+        </svg>
+        BookTrade
       </div>
-    </header>
-
-    <!-- Navegação -->
-    <nav class="nav-tabs">
-      <div class="container">
-        <button class="tab-btn active" data-tab="pendentes">
-          Livros Pendentes
-        </button>
-        <button class="tab-btn" data-tab="aprovados">Livros Aprovados</button>
-        <button class="tab-btn" data-tab="reprovados">Livros Reprovados</button>
-      </div>
+      <ul class="links-navegacao">
+        <li><a href="#">Catálogo</a></li>
+        <li><a href="#">Meus Livros</a></li>
+        <li><a href="#" style="color: #3b82f6">Painel Revisor</a></li>
+      </ul>
     </nav>
 
-    <main class="main-content">
-      <div class="container">
-        <!-- Seção: Livros Pendentes -->
-        <section id="section-pendentes" class="section active">
-          <div class="section-header">
-            <h2>Livros Aguardando Revisão</h2>
-            <div class="filters">
-              <input
-                type="text"
-                id="search-book"
-                placeholder="Buscar por título ou autor..."
-                class="input-search"
-              />
-              <select id="filter-genre" class="select-filter">
-                <option value="">Todos os gêneros</option>
-              </select>
-            </div>
-          </div>
-
-          <div class="table-container">
-            <table class="users-table">
-              <thead>
-                <tr>
-                  <th>Título</th>
-                  <th>Autor</th>
-                  <th>Gênero</th>
-                  <th>Ano</th>
-                  <th>Estado</th>
-                  <th>Publicado por</th>
-                  <th>Data</th>
-                  <th>Ações</th>
-                </tr>
-              </thead>
-              <tbody id="books-pending">
-                <!-- Livros pendentes -->
-              </tbody>
-            </table>
-          </div>
-        </section>
-
-        <!-- Seção: Livros Aprovados -->
-        <section id="section-aprovados" class="section">
-          <div class="section-header">
-            <h2>Livros Aprovados</h2>
-          </div>
-
-          <div class="table-container">
-            <table class="users-table">
-              <thead>
-                <tr>
-                  <th>Título</th>
-                  <th>Autor</th>
-                  <th>Gênero</th>
-                  <th>Publicado por</th>
-                  <th>Data Revisão</th>
-                  <th>Ações</th>
-                </tr>
-              </thead>
-              <tbody id="books-approved">
-                <!-- Livros aprovados -->
-              </tbody>
-            </table>
-          </div>
-        </section>
-
-        <!-- Seção: Livros Reprovados -->
-        <section id="section-reprovados" class="section">
-          <div class="section-header">
-            <h2>Livros Reprovados</h2>
-          </div>
-
-          <div class="table-container">
-            <table class="users-table">
-              <thead>
-                <tr>
-                  <th>Título</th>
-                  <th>Autor</th>
-                  <th>Gênero</th>
-                  <th>Publicado por</th>
-                  <th>Data Revisão</th>
-                  <th>Ações</th>
-                </tr>
-              </thead>
-              <tbody id="books-rejected">
-                <!-- Livros reprovados -->
-              </tbody>
-            </table>
-          </div>
-        </section>
+    <div class="container">
+      <div class="cabecalho">
+        <h1>Painel do Revisor</h1>
+        <p style="color: #718096; font-size: 1.125rem">
+          Revise e aprove os livros enviados pelos usuários
+        </p>
       </div>
-    </main>
 
-    <!-- Modal de Revisão -->
-    <div id="modal-revisar" class="modal">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h3>Revisar Livro</h3>
-          <button class="modal-close" id="modal-close">&times;</button>
+      <div class="estatisticas">
+        <div class="cartao-estatistica">
+          <h3>Pendentes</h3>
+          <p id="contagemPendentes">0</p>
         </div>
-        <div class="modal-body">
-          <form id="form-revisar">
-            <input type="hidden" id="book-id" />
-
-            <div class="form-group">
-              <label>Título</label>
-              <input type="text" id="book-titulo" readonly />
-            </div>
-
-            <div class="form-row">
-              <div class="form-group">
-                <label>Autor</label>
-                <input type="text" id="book-autor" readonly />
-              </div>
-              <div class="form-group">
-                <label>Gênero</label>
-                <input type="text" id="book-genero" readonly />
-              </div>
-            </div>
-
-            <div class="form-row">
-              <div class="form-group">
-                <label>Ano de Publicação</label>
-                <input type="text" id="book-ano" readonly />
-              </div>
-              <div class="form-group">
-                <label>ISBN</label>
-                <input type="text" id="book-isbn" readonly />
-              </div>
-            </div>
-
-            <div class="form-row">
-              <div class="form-group">
-                <label>Estado do Livro</label>
-                <input type="text" id="book-estado" readonly />
-              </div>
-              <div class="form-group">
-                <label>Data de Postagem</label>
-                <input type="text" id="book-data" readonly />
-              </div>
-            </div>
-
-            <div class="form-group">
-              <label>Publicado por</label>
-              <input type="text" id="book-usuario" readonly />
-            </div>
-
-            <div class="form-group">
-              <label>Descrição</label>
-              <textarea id="book-descricao" rows="4" readonly></textarea>
-            </div>
-
-            <div class="form-group">
-              <label for="observacao">
-                Observação (será enviada por e-mail ao usuário)
-              </label>
-              <textarea
-                id="observacao"
-                rows="4"
-                placeholder="Digite suas observações sobre o livro..."
-              ></textarea>
-              <small style="color: #64748b; font-size: 12px">
-                * Obrigatória apenas para reprovação
-              </small>
-            </div>
-          </form>
+        <div class="cartao-estatistica">
+          <h3>Aprovados Hoje</h3>
+          <p id="contagemAprovados">0</p>
         </div>
-        <div class="modal-actions">
-          <button type="button" class="btn-danger" id="btn-reprovar">
-            Reprovar Livro
+        <div class="cartao-estatistica">
+          <h3>Reprovados Hoje</h3>
+          <p id="contagemReprovados">0</p>
+        </div>
+      </div>
+
+      <div class="filtros">
+        <div class="grupo-filtros">
+          <button class="botao-filtro ativo" data-filtro="todos">Todos</button>
+          <button class="botao-filtro" data-filtro="pendente">Pendentes</button>
+          <button class="botao-filtro" data-filtro="aprovado">Aprovados</button>
+          <button class="botao-filtro" data-filtro="reprovado">
+            Reprovados
           </button>
-          <div>
-            <button type="button" class="btn-secondary" id="btn-cancel">
-              Cancelar
-            </button>
-            <button type="button" class="btn-primary" id="btn-aprovar">
-              Aprovar Livro
-            </button>
-          </div>
+        </div>
+      </div>
+
+      <div class="lista-livros" id="listaLivros"></div>
+    </div>
+
+    <div class="modal" id="modalReprovar">
+      <div class="conteudo-modal">
+        <div class="cabecalho-modal">Motivo da Reprovação</div>
+        <div class="corpo-modal">
+          <textarea
+            id="motivoReprovacao"
+            placeholder="Digite o motivo da reprovação..."
+          ></textarea>
+        </div>
+        <div class="acoes-modal">
+          <button class="botao botao-detalhes" onclick="fecharModal()">
+            Cancelar
+          </button>
+          <button class="botao botao-reprovar" onclick="confirmarReprovacao()">
+            Confirmar Reprovação
+          </button>
         </div>
       </div>
     </div>
 
-    <!-- Modal de Visualização -->
-    <div id="modal-visualizar" class="modal">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h3>Detalhes do Livro</h3>
-          <button class="modal-close" id="modal-view-close">&times;</button>
-        </div>
-        <div class="modal-body">
-          <div class="form-group">
-            <label>Título</label>
-            <input type="text" id="view-titulo" readonly />
-          </div>
-
-          <div class="form-row">
-            <div class="form-group">
-              <label>Autor</label>
-              <input type="text" id="view-autor" readonly />
-            </div>
-            <div class="form-group">
-              <label>Gênero</label>
-              <input type="text" id="view-genero" readonly />
-            </div>
-          </div>
-
-          <div class="form-row">
-            <div class="form-group">
-              <label>Ano de Publicação</label>
-              <input type="text" id="view-ano" readonly />
-            </div>
-            <div class="form-group">
-              <label>ISBN</label>
-              <input type="text" id="view-isbn" readonly />
-            </div>
-          </div>
-
-          <div class="form-row">
-            <div class="form-group">
-              <label>Estado do Livro</label>
-              <input type="text" id="view-estado" readonly />
-            </div>
-            <div class="form-group">
-              <label>Data de Revisão</label>
-              <input type="text" id="view-data-revisao" readonly />
-            </div>
-          </div>
-
-          <div class="form-group">
-            <label>Publicado por</label>
-            <input type="text" id="view-usuario" readonly />
-          </div>
-
-          <div class="form-group" id="view-obs-container" style="display: none">
-            <label>Observação da Revisão</label>
-            <textarea id="view-observacao" rows="3" readonly></textarea>
-          </div>
-
-          <div class="form-group">
-            <label>Descrição</label>
-            <textarea id="view-descricao" rows="4" readonly></textarea>
-          </div>
-        </div>
-        <div class="modal-actions">
-          <button class="btn-secondary" id="btn-view-close">Fechar</button>
-        </div>
-      </div>
+    <div class="notificacao" id="notificacao">
+      <span id="textoNotificacao"></span>
     </div>
+    <script src="script.js"></script>
   </body>
 </html>
