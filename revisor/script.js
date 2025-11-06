@@ -1,547 +1,269 @@
-// ==================== VARIÁVEIS GLOBAIS ====================
-let currentUser = null;
-let allBooks = [];
-let filteredBooks = [];
-let currentBookId = null;
-let currentTab = "pendentes";
+let livros = [];
+let filtroAtual = "todos";
+let idReprovacaoAtual = null;
 
-// ==================== INICIALIZAÇÃO ====================
-document.addEventListener("DOMContentLoaded", async () => {
-  currentUser = await protegerPagina(["revisor", "admin"]);
-  exibirNomeUsuario(currentUser, "nome-revisor");
-  initTabs();
-  initModalHandlers();
-  initFilters();
-  loadBooks();
-  loadGenres();
-});
-
-// ==================== NAVEGAÇÃO ENTRE ABAS ====================
-function initTabs() {
-  const tabButtons = document.querySelectorAll(".tab-btn");
-  const sections = document.querySelectorAll(".section");
-
-  tabButtons.forEach((btn) => {
-    btn.addEventListener("click", () => {
-      const targetTab = btn.dataset.tab;
-      currentTab = targetTab;
-
-      tabButtons.forEach((b) => b.classList.remove("active"));
-      sections.forEach((s) => s.classList.remove("active"));
-
-      btn.classList.add("active");
-      const targetSection = document.getElementById(`section-${targetTab}`);
-      if (targetSection) {
-        targetSection.classList.add("active");
-      }
-
-      renderBooks();
-    });
-  });
-}
-
-// ==================== CARREGAMENTO DE DADOS ====================
-async function loadBooks() {
+// Função para carregar livros do backend
+async function carregarLivros() {
   try {
-    showLoading();
-
-    const response = await fetch("/api/livros", {
-      credentials: "include",
+    const response = await fetch("/api/livros-pendentes", {
+      method: "GET",
+      credentials: "include", // Importante para enviar cookies de sessão
+      headers: {
+        "Content-Type": "application/json",
+      },
     });
-
-    if (response.status === 401) {
-      alert("Sessão expirada. Faça login novamente.");
-      window.location.href = "/login/index.html";
-      return;
-    }
 
     const data = await response.json();
 
     if (data.success) {
-      allBooks = data.livros;
-      filteredBooks = [...allBooks];
-      renderBooks();
+      // Mapear os dados do banco para o formato esperado pelo frontend
+      livros = data.livros.map((livro) => ({
+        id: livro.id_livro,
+        titulo: livro.titulo,
+        autor: livro.nome_autor,
+        genero: livro.nome_genero,
+        ano: livro.ano_publicacao,
+        enviadoPor: livro.nome_usuario,
+        dataEnvio: livro.data_postagem,
+        status:
+          livro.aprovado === null
+            ? "pendente"
+            : livro.aprovado === 1
+              ? "aprovado"
+              : "reprovado",
+        cor: obterCorPorGenero(livro.nome_genero),
+        descricao: livro.descricao || "Sem descrição disponível",
+        motivoReprovacao: livro.motivo_reprovacao,
+      }));
+
+      renderizarLivros();
+      await carregarEstatisticas();
     } else {
-      alert(data.message || "Erro ao carregar livros");
+      mostrarNotificacao("Erro ao carregar livros", "erro");
     }
   } catch (error) {
     console.error("Erro ao carregar livros:", error);
-    alert("Erro ao conectar com o servidor");
+    mostrarNotificacao("Erro ao conectar com o servidor", "erro");
   }
 }
 
-async function loadGenres() {
+// Função para carregar estatísticas
+async function carregarEstatisticas() {
   try {
-    const response = await fetch("/api/generos", {
+    const response = await fetch("/api/revisor/estatisticas", {
+      method: "GET",
       credentials: "include",
+      headers: {
+        "Content-Type": "application/json",
+      },
     });
 
     const data = await response.json();
 
     if (data.success) {
-      const select = document.getElementById("filter-genre");
-      data.generos.forEach((genero) => {
-        const option = document.createElement("option");
-        option.value = genero.id_genero;
-        option.textContent = genero.nome;
-        select.appendChild(option);
-      });
+      document.getElementById("contagemPendentes").textContent =
+        data.estatisticas.pendentes;
+      document.getElementById("contagemAprovados").textContent =
+        data.estatisticas.aprovadosHoje;
+      document.getElementById("contagemReprovados").textContent =
+        data.estatisticas.reprovadosHoje;
     }
   } catch (error) {
-    console.error("Erro ao carregar gêneros:", error);
+    console.error("Erro ao carregar estatísticas:", error);
   }
 }
 
-// ==================== RENDERIZAÇÃO ====================
-function renderBooks() {
-  const status = getStatusFromTab(currentTab);
-  const booksToRender = filteredBooks.filter((book) => {
-    if (status === "pendente") {
-      return !book.data_autorizacao;
-    }
-    if (status === "aprovado") {
-      return book.data_autorizacao && book.aprovado;
-    }
-    if (status === "reprovado") {
-      return book.data_autorizacao && !book.aprovado;
-    }
-    return false;
-  });
+// Função auxiliar para obter cor baseada no gênero
+function obterCorPorGenero(genero) {
+  const cores = {
+    Fantasia: "#8b5cf6",
+    Ficção: "#ec4899",
+    História: "#f59e0b",
+    Suspense: "#3b82f6",
+    Infantil: "#10b981",
+    Romance: "#ef4444",
+    Terror: "#6b7280",
+    Aventura: "#14b8a6",
+    Biografia: "#f97316",
+    Técnico: "#8b5cf6",
+  };
+  return cores[genero] || "#6b7280";
+}
 
-  const containerId = `books-${currentTab === "pendentes" ? "pending" : currentTab === "aprovados" ? "approved" : "rejected"}`;
-  const emptyId = `empty-${currentTab === "pendentes" ? "pending" : currentTab === "aprovados" ? "approved" : "rejected"}`;
+function renderizarLivros() {
+  const listaLivros = document.getElementById("listaLivros");
+  const livrosFiltrados =
+    filtroAtual === "todos"
+      ? livros
+      : livros.filter((l) => l.status === filtroAtual);
 
-  const container = document.getElementById(containerId);
-  const emptyState = document.getElementById(emptyId);
-
-  if (!container || !emptyState) {
+  if (livrosFiltrados.length === 0) {
+    listaLivros.innerHTML = `
+            <div style="text-align: center; padding: 3rem; color: #718096;">
+                <p style="font-size: 1.25rem;">Nenhum livro encontrado</p>
+            </div>
+        `;
     return;
   }
 
-  container.innerHTML = "";
-
-  if (booksToRender.length === 0) {
-    emptyState.style.display = "block";
-    return;
-  }
-
-  emptyState.style.display = "none";
-
-  booksToRender.forEach((book) => {
-    const card = createBookCard(book);
-    container.appendChild(card);
-  });
+  listaLivros.innerHTML = livrosFiltrados
+    .map(
+      (livro) => `
+        <div class="cartao-livro" data-status="${livro.status}">
+            <div class="capa-livro" style="background: ${livro.cor};">
+                <svg viewBox="0 0 24 24">
+                    <path d="M21 4H3C1.9 4 1 4.9 1 6v12c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zM3 18V6h8v12H3zm18 0h-8V6h8v12z"/>
+                </svg>
+            </div>
+            <div class="info-livro">
+                <div class="titulo-livro">${livro.titulo}</div>
+                <div class="autor-livro">${livro.autor}</div>
+                <div class="metadados-livro">
+                    <span class="etiqueta-meta">📚 ${livro.genero}</span>
+                    <span class="etiqueta-meta">📅 ${livro.ano}</span>
+                </div>
+                <div class="descricao-livro">${livro.descricao}</div>
+                ${
+                  livro.status === "reprovado" && livro.motivoReprovacao
+                    ? `
+                    <div style="margin-top: 0.75rem; padding: 0.75rem; background: #fee2e2; border-radius: 6px; color: #991b1b;">
+                        <strong>Motivo da reprovação:</strong> ${livro.motivoReprovacao}
+                    </div>
+                `
+                    : ""
+                }
+                <div class="enviado-por">Enviado por ${livro.enviadoPor} em ${new Date(livro.dataEnvio).toLocaleDateString("pt-BR")}</div>
+            </div>
+            <div class="acoes">
+                ${
+                  livro.status === "pendente"
+                    ? `
+                    <button class="botao botao-aprovar" onclick="aprovarLivro(${livro.id})">✓ Aprovar</button>
+                    <button class="botao botao-reprovar" onclick="abrirModalReprovar(${livro.id})">✗ Reprovar</button>
+                `
+                    : livro.status === "aprovado"
+                      ? `
+                    <button class="botao botao-aprovar" style="opacity: 0.6; cursor: default;">✓ Aprovado</button>
+                `
+                      : `
+                    <button class="botao botao-reprovar" style="opacity: 0.6; cursor: default;">✗ Reprovado</button>
+                `
+                }
+            </div>
+        </div>
+    `
+    )
+    .join("");
 }
 
-function createBookCard(book) {
-  const card = document.createElement("div");
-  card.className = "book-card";
-  card.onclick = () => openBookModal(book);
-
-  const statusClass = book.data_autorizacao
-    ? book.aprovado
-      ? "aprovado"
-      : "reprovado"
-    : "pendente";
-
-  const statusText = book.data_autorizacao
-    ? book.aprovado
-      ? "Aprovado"
-      : "Reprovado"
-    : "Pendente";
-
-  card.innerHTML = `
-    <span class="book-status ${statusClass}">${statusText}</span>
-    <h3 class="book-title">${book.titulo}</h3>
-    <p class="book-author">por ${book.autor_nome}</p>
-    <div class="book-info">
-      <div class="book-info-item">
-        <span class="book-info-label">Gênero:</span>
-        <span class="book-info-value">${book.genero_nome}</span>
-      </div>
-      <div class="book-info-item">
-        <span class="book-info-label">Ano:</span>
-        <span class="book-info-value">${book.ano_publicacao}</span>
-      </div>
-      <div class="book-info-item">
-        <span class="book-info-label">Estado:</span>
-        <span class="book-info-value">${capitalizeFirst(book.estado)}</span>
-      </div>
-      <div class="book-info-item">
-        <span class="book-info-label">Publicado em:</span>
-        <span class="book-info-value">${formatDate(book.data_postagem)}</span>
-      </div>
-    </div>
-  `;
-
-  return card;
-}
-
-function showLoading() {
-  const containers = ["books-pending", "books-approved", "books-rejected"];
-  containers.forEach((id) => {
-    const container = document.getElementById(id);
-    if (container) {
-      container.innerHTML = '<div class="loading">Carregando livros</div>';
-    }
-  });
-}
-
-// ==================== MODAL ====================
-function initModalHandlers() {
-  const modalRevisar = document.getElementById("modal-revisar");
-  const modalVisualizar = document.getElementById("modal-visualizar");
-  const closeBtn = document.getElementById("modal-close");
-  const viewCloseBtn = document.getElementById("modal-view-close");
-  const cancelBtn = document.getElementById("btn-cancel");
-  const btnViewClose = document.getElementById("btn-view-close");
-  const btnAprovar = document.getElementById("btn-aprovar");
-  const btnReprovar = document.getElementById("btn-reprovar");
-
-  if (closeBtn) {
-    closeBtn.addEventListener("click", closeModal);
-  }
-  if (viewCloseBtn) {
-    viewCloseBtn.addEventListener("click", closeViewModal);
-  }
-  if (cancelBtn) {
-    cancelBtn.addEventListener("click", closeModal);
-  }
-  if (btnViewClose) {
-    btnViewClose.addEventListener("click", closeViewModal);
-  }
-  if (btnAprovar) {
-    btnAprovar.addEventListener("click", handleAprovar);
-  }
-  if (btnReprovar) {
-    btnReprovar.addEventListener("click", handleReprovar);
-  }
-
-  // Logout
-  const btnLogout = document.getElementById("btn-logout");
-  if (btnLogout) {
-    btnLogout.addEventListener("click", handleLogout);
-  }
-
-  // Fecha modal ao clicar fora
-  if (modalRevisar) {
-    modalRevisar.addEventListener("click", (e) => {
-      if (e.target === modalRevisar) {
-        closeModal();
-      }
-    });
-  }
-
-  if (modalVisualizar) {
-    modalVisualizar.addEventListener("click", (e) => {
-      if (e.target === modalVisualizar) {
-        closeViewModal();
-      }
-    });
-  }
-}
-
-function openBookModal(book) {
-  currentBookId = book.id_livro;
-
-  // Se o livro já foi revisado, abre modal de visualização
-  if (book.data_autorizacao) {
-    openViewModal(book);
-    return;
-  }
-
-  // Preenche o modal de revisão
-  document.getElementById("detail-titulo").textContent = book.titulo;
-  document.getElementById("detail-autor").textContent = book.autor_nome;
-  document.getElementById("detail-genero").textContent = book.genero_nome;
-  document.getElementById("detail-ano").textContent = book.ano_publicacao;
-  document.getElementById("detail-isbn").textContent = book.isbn;
-  document.getElementById("detail-estado").textContent = capitalizeFirst(
-    book.estado
-  );
-  document.getElementById("detail-usuario").textContent =
-    `${book.usuario_nome} (${book.usuario_email})`;
-  document.getElementById("detail-data").textContent = formatDate(
-    book.data_postagem
-  );
-  document.getElementById("detail-descricao").textContent = book.descricao;
-  document.getElementById("observacao").value = "";
-
-  const modal = document.getElementById("modal-revisar");
-  if (modal) {
-    modal.classList.add("active");
-  }
-}
-
-function openViewModal(book) {
-  document.getElementById("view-titulo").textContent = book.titulo;
-  document.getElementById("view-autor").textContent = book.autor_nome;
-  document.getElementById("view-genero").textContent = book.genero_nome;
-  document.getElementById("view-ano").textContent = book.ano_publicacao;
-  document.getElementById("view-isbn").textContent = book.isbn;
-  document.getElementById("view-estado").textContent = capitalizeFirst(
-    book.estado
-  );
-  document.getElementById("view-usuario").textContent =
-    `${book.usuario_nome} (${book.usuario_email})`;
-  document.getElementById("view-data-revisao").textContent =
-    book.data_autorizacao ? formatDate(book.data_autorizacao) : "N/A";
-  document.getElementById("view-descricao").textContent = book.descricao;
-
-  // Mostra observação apenas se existir
-  const obsContainer = document.getElementById("view-observacao-container");
-  const obsText = document.getElementById("view-observacao");
-  if (book.observacao_revisao) {
-    obsText.textContent = book.observacao_revisao;
-    obsContainer.style.display = "flex";
-  } else {
-    obsContainer.style.display = "none";
-  }
-
-  const modal = document.getElementById("modal-visualizar");
-  if (modal) {
-    modal.classList.add("active");
-  }
-}
-
-function closeModal() {
-  const modal = document.getElementById("modal-revisar");
-  if (modal) {
-    modal.classList.remove("active");
-  }
-  currentBookId = null;
-}
-
-function closeViewModal() {
-  const modal = document.getElementById("modal-visualizar");
-  if (modal) {
-    modal.classList.remove("active");
-  }
-}
-
-// ==================== AÇÕES DE REVISÃO ====================
-async function handleAprovar() {
-  if (!currentBookId) {
-    return;
-  }
-
-  if (!confirm("Tem certeza que deseja aprovar este livro?")) {
-    return;
-  }
-
-  const observacao = document.getElementById("observacao").value.trim();
-
+async function aprovarLivro(id) {
   try {
-    const response = await fetch("/api/revisar-livro", {
+    const response = await fetch(`/api/livros/${id}/aprovar`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
       credentials: "include",
-      body: JSON.stringify({
-        id_livro: currentBookId,
-        aprovado: true,
-        observacao: observacao || null,
-      }),
+      headers: {
+        "Content-Type": "application/json",
+      },
     });
 
     const data = await response.json();
 
     if (data.success) {
-      alert("Livro aprovado com sucesso!");
-      closeModal();
-      loadBooks();
+      mostrarNotificacao("Livro aprovado com sucesso!", "sucesso");
+      await carregarLivros(); // Recarrega a lista
     } else {
-      alert(data.message || "Erro ao aprovar livro");
+      mostrarNotificacao(data.message || "Erro ao aprovar livro", "erro");
     }
   } catch (error) {
     console.error("Erro ao aprovar livro:", error);
-    alert("Erro ao conectar com o servidor");
+    mostrarNotificacao("Erro ao conectar com o servidor", "erro");
   }
 }
 
-async function handleReprovar() {
-  if (!currentBookId) {
-    return;
-  }
+function abrirModalReprovar(id) {
+  idReprovacaoAtual = id;
+  document.getElementById("modalReprovar").classList.add("ativo");
+  document.getElementById("motivoReprovacao").focus();
+}
 
-  const observacao = document.getElementById("observacao").value.trim();
+function fecharModal() {
+  document.getElementById("modalReprovar").classList.remove("ativo");
+  document.getElementById("motivoReprovacao").value = "";
+  idReprovacaoAtual = null;
+}
 
-  if (!observacao) {
-    alert(
-      "Por favor, informe uma observação explicando o motivo da reprovação."
-    );
-    return;
-  }
+async function confirmarReprovacao() {
+  const motivo = document.getElementById("motivoReprovacao").value;
 
-  if (!confirm("Tem certeza que deseja reprovar este livro?")) {
+  if (!motivo.trim()) {
+    mostrarNotificacao("Por favor, informe o motivo da reprovação", "erro");
     return;
   }
 
   try {
-    const response = await fetch("/api/revisar-livro", {
+    const response = await fetch(`/api/livros/${idReprovacaoAtual}/reprovar`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
       credentials: "include",
-      body: JSON.stringify({
-        id_livro: currentBookId,
-        aprovado: false,
-        observacao: observacao,
-      }),
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ motivo }),
     });
 
     const data = await response.json();
 
     if (data.success) {
-      alert(
-        "Livro reprovado. O usuário receberá um e-mail com sua observação."
-      );
-      closeModal();
-      loadBooks();
+      mostrarNotificacao("Livro reprovado", "erro");
+      fecharModal();
+      await carregarLivros(); // Recarrega a lista
     } else {
-      alert(data.message || "Erro ao reprovar livro");
+      mostrarNotificacao(data.message || "Erro ao reprovar livro", "erro");
     }
   } catch (error) {
     console.error("Erro ao reprovar livro:", error);
-    alert("Erro ao conectar com o servidor");
+    mostrarNotificacao("Erro ao conectar com o servidor", "erro");
   }
 }
 
-// ==================== FILTROS ====================
-function initFilters() {
-  const searchInput = document.getElementById("search-book");
-  const genreFilter = document.getElementById("filter-genre");
+function mostrarNotificacao(texto, tipo) {
+  const notificacao = document.getElementById("notificacao");
+  const textoNotificacao = document.getElementById("textoNotificacao");
 
-  if (searchInput) {
-    searchInput.addEventListener("input", applyFilters);
-  }
+  textoNotificacao.textContent = texto;
+  notificacao.className = `notificacao ${tipo} mostrar`;
 
-  if (genreFilter) {
-    genreFilter.addEventListener("change", applyFilters);
-  }
+  setTimeout(() => {
+    notificacao.classList.remove("mostrar");
+  }, 3000);
 }
 
-function applyFilters() {
-  const searchInput = document.getElementById("search-book");
-  const genreFilter = document.getElementById("filter-genre");
+// Event listeners para os filtros
+document.querySelectorAll(".botao-filtro").forEach((botao) => {
+  botao.addEventListener("click", function () {
+    document
+      .querySelectorAll(".botao-filtro")
+      .forEach((b) => b.classList.remove("ativo"));
+    this.classList.add("ativo");
+    filtroAtual = this.dataset.filtro;
+    renderizarLivros();
+  });
+});
 
-  const searchTerm = searchInput ? searchInput.value.toLowerCase() : "";
-  const genreId = genreFilter ? genreFilter.value : "";
-
-  filteredBooks = allBooks.filter((book) => {
-    const matchesSearch =
-      book.titulo.toLowerCase().includes(searchTerm) ||
-      book.autor_nome.toLowerCase().includes(searchTerm);
-
-    const matchesGenre = !genreId || book.id_genero === parseInt(genreId);
-
-    return matchesSearch && matchesGenre;
+// Fechar modal ao clicar fora dele
+document
+  .getElementById("modalReprovar")
+  .addEventListener("click", function (e) {
+    if (e.target === this) {
+      fecharModal();
+    }
   });
 
-  renderBooks();
-}
-
-// ==================== UTILITÁRIOS ====================
-function getStatusFromTab(tab) {
-  switch (tab) {
-    case "pendentes":
-      return "pendente";
-    case "aprovados":
-      return "aprovado";
-    case "reprovados":
-      return "reprovado";
-    default:
-      return "pendente";
+// Fechar modal com tecla ESC
+document.addEventListener("keydown", function (e) {
+  if (e.key === "Escape") {
+    fecharModal();
   }
-}
+});
 
-function formatDate(dateString) {
-  if (!dateString) {
-    return "N/A";
-  }
-  const date = new Date(dateString);
-  return (
-    date.toLocaleDateString("pt-BR") +
-    " " +
-    date.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })
-  );
-}
-
-function capitalizeFirst(str) {
-  if (!str) {
-    return "";
-  }
-  return str.charAt(0).toUpperCase() + str.slice(1);
-}
-
-async function handleLogout() {
-  if (!confirm("Deseja realmente sair?")) {
-    return;
-  }
-
-  try {
-    const response = await fetch("/api/auth/logout", {
-      method: "POST",
-      credentials: "include",
-    });
-
-    const data = await response.json();
-
-    if (data.success) {
-      window.location.href = "/login/index.html";
-    } else {
-      window.location.href = "/login/index.html";
-    }
-  } catch (error) {
-    console.error("Erro ao fazer logout:", error);
-    window.location.href = "/login/index.html";
-  }
-}
-
-// ==================== AUTENTICAÇÃO ====================
-async function verificarSessao() {
-  try {
-    const response = await fetch("/api/auth/verificar-sessao", {
-      method: "GET",
-      credentials: "include",
-    });
-
-    const data = await response.json();
-
-    if (data.success && data.autenticado) {
-      return data.usuario;
-    }
-    return null;
-  } catch (error) {
-    console.error("Erro ao verificar sessão:", error);
-    return null;
-  }
-}
-
-async function protegerPagina(tiposPermitidos = []) {
-  const usuario = await verificarSessao();
-
-  if (!usuario) {
-    alert("Você precisa fazer login para acessar esta página");
-    window.location.href = "/login/index.html";
-    return null;
-  }
-
-  if (tiposPermitidos.length > 0 && !tiposPermitidos.includes(usuario.tipo)) {
-    alert("Você não tem permissão para acessar esta página");
-    const rotas = {
-      admin: "/admin/index.html",
-      revisor: "/gestor/index.html",
-      comum: "/user/index.html",
-    };
-    window.location.href = rotas[usuario.tipo] || "/login/index.html";
-    return null;
-  }
-
-  return usuario;
-}
-
-function exibirNomeUsuario(usuario, elementoId) {
-  const elemento = document.getElementById(elementoId);
-  if (elemento && usuario) {
-    elemento.textContent = usuario.nome;
-  }
-}
+// Carregar dados ao iniciar a página
+carregarLivros();
