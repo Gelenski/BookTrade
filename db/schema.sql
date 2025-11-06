@@ -90,11 +90,9 @@ CREATE TABLE Troca (
     mensagem TEXT NOT NULL,
     id_usuario_solicitante INT NOT NULL,
     id_usuario_ofertante INT NOT NULL,
-    id_livro_ofertado INT NOT NULL,
     id_livro_solicitado INT NOT NULL,
     FOREIGN KEY (id_usuario_solicitante) REFERENCES Usuario(id_usuario),
     FOREIGN KEY (id_usuario_ofertante) REFERENCES Usuario(id_usuario),
-    FOREIGN KEY (id_livro_ofertado) REFERENCES Livro(id_livro),
     FOREIGN KEY (id_livro_solicitado) REFERENCES Livro(id_livro)
 );
 

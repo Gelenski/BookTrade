@@ -13,7 +13,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   initModalHandlers();
   initFilters();
   loadBooks();
-  loadGenres();
+  // loadGenres();
 });
 
 // ==================== NAVEGAÇÃO ENTRE ABAS ====================
@@ -43,8 +43,8 @@ function initTabs() {
 // ==================== CARREGAMENTO DE DADOS ====================
 async function loadBooks() {
   try {
-    showLoading();
-
+    // showLoading();
+    console.log("Carregando livros...");
     const response = await fetch("/api/livros", {
       credentials: "include",
     });
@@ -56,7 +56,7 @@ async function loadBooks() {
     }
 
     const data = await response.json();
-
+    console.log("Livros carregados:", data);
     if (data.success) {
       allBooks = data.livros;
       filteredBooks = [...allBooks];
@@ -177,15 +177,15 @@ function createBookCard(book) {
   return card;
 }
 
-function showLoading() {
-  const containers = ["books-pending", "books-approved", "books-rejected"];
-  containers.forEach((id) => {
-    const container = document.getElementById(id);
-    if (container) {
-      container.innerHTML = '<div class="loading">Carregando livros</div>';
-    }
-  });
-}
+// function showLoading() {
+//   const containers = ["books-pending", "books-approved", "books-rejected"];
+//   containers.forEach((id) => {
+//     const container = document.getElementById(id);
+//     if (container) {
+//       container.innerHTML = '<div class="loading">Carregando livros</div>';
+//     }
+//   });
+// }
 
 // ==================== MODAL ====================
 function initModalHandlers() {

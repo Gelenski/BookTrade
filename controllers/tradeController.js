@@ -1,5 +1,25 @@
 const db = require("../db/database");
 
+// Mapeamento de status: TINYINT no banco -> String no código
+const STATUS = {
+  PENDENTE: 1,
+  EM_NEGOCIACAO: 2,
+  ACEITA: 3,
+  RECUSADA: 4,
+  CANCELADA: 5,
+  CONCLUIDA: 6,
+};
+
+// Mapeamento reverso: TINYINT -> String para exibição
+const STATUS_NAMES = {
+  1: "pendente",
+  2: "em_negociacao",
+  3: "aceita",
+  4: "recusada",
+  5: "cancelada",
+  6: "concluida",
+};
+
 // Criar solicitação de troca
 exports.criarSolicitacaoTroca = async (req, res) => {
   try {
@@ -44,7 +64,7 @@ exports.criarSolicitacaoTroca = async (req, res) => {
       });
     }
 
-    const id_usuario_proprietario = livro[0].id_usuario;
+    const id_usuario_ofertante = livro[0].id_usuario;
 
     // Verificar se já existe solicitação pendente
     const [trocaExistente] = await db.query(
@@ -52,8 +72,13 @@ exports.criarSolicitacaoTroca = async (req, res) => {
        FROM troca 
        WHERE id_livro_solicitado = ? 
        AND id_usuario_solicitante = ? 
-       AND status IN ('pendente', 'em_negociacao')`,
-      [id_livro_solicitado, id_usuario_solicitante]
+       AND status IN (?, ?)`,
+      [
+        id_livro_solicitado,
+        id_usuario_solicitante,
+        STATUS.PENDENTE,
+        STATUS.EM_NEGOCIACAO,
+      ]
     );
 
     if (trocaExistente.length > 0) {
@@ -67,14 +92,15 @@ exports.criarSolicitacaoTroca = async (req, res) => {
     const data_solicitacao = new Date();
     const [resultado] = await db.query(
       `INSERT INTO troca 
-       (id_livro_solicitado, id_usuario_solicitante, id_usuario_proprietario, 
+       (id_livro_solicitado, id_usuario_solicitante, id_usuario_ofertante, 
         mensagem, status, data_solicitacao) 
-       VALUES (?, ?, ?, ?, 'pendente', ?)`,
+       VALUES (?, ?, ?, ?, ?, ?)`,
       [
         id_livro_solicitado,
         id_usuario_solicitante,
-        id_usuario_proprietario,
+        id_usuario_ofertante,
         mensagem,
+        STATUS.PENDENTE,
         data_solicitacao,
       ]
     );
@@ -115,7 +141,7 @@ exports.listarTrocasRecebidas = async (req, res) => {
         t.mensagem,
         t.status,
         t.data_solicitacao,
-        t.data_resposta,
+        t.data_conclusao,
         l.id_livro,
         l.titulo AS livro_titulo,
         u.id_usuario AS solicitante_id,
@@ -124,23 +150,20 @@ exports.listarTrocasRecebidas = async (req, res) => {
       FROM troca t
       INNER JOIN livro l ON t.id_livro_solicitado = l.id_livro
       INNER JOIN usuario u ON t.id_usuario_solicitante = u.id_usuario
-      WHERE t.id_usuario_proprietario = ?
-      ORDER BY 
-        CASE t.status
-          WHEN 'pendente' THEN 1
-          WHEN 'em_negociacao' THEN 2
-          WHEN 'aceita' THEN 3
-          WHEN 'recusada' THEN 4
-          WHEN 'cancelada' THEN 5
-          WHEN 'concluida' THEN 6
-        END,
-        t.data_solicitacao DESC`,
+      WHERE t.id_usuario_ofertante = ?
+      ORDER BY t.status, t.data_solicitacao DESC`,
       [id_usuario]
     );
 
+    // Converter status numérico para string
+    const trocasFormatadas = trocas.map((troca) => ({
+      ...troca,
+      status: STATUS_NAMES[troca.status] || "desconhecido",
+    }));
+
     res.json({
       success: true,
-      trocas: trocas,
+      trocas: trocasFormatadas,
     });
   } catch (err) {
     console.error("Erro ao listar trocas recebidas:", err);
@@ -169,7 +192,7 @@ exports.listarTrocasEnviadas = async (req, res) => {
         t.mensagem,
         t.status,
         t.data_solicitacao,
-        t.data_resposta,
+        t.data_conclusao,
         l.id_livro,
         l.titulo AS livro_titulo,
         u.id_usuario AS proprietario_id,
@@ -177,24 +200,21 @@ exports.listarTrocasEnviadas = async (req, res) => {
         u.email AS proprietario_email
       FROM troca t
       INNER JOIN livro l ON t.id_livro_solicitado = l.id_livro
-      INNER JOIN usuario u ON t.id_usuario_proprietario = u.id_usuario
+      INNER JOIN usuario u ON t.id_usuario_ofertante = u.id_usuario
       WHERE t.id_usuario_solicitante = ?
-      ORDER BY 
-        CASE t.status
-          WHEN 'pendente' THEN 1
-          WHEN 'em_negociacao' THEN 2
-          WHEN 'aceita' THEN 3
-          WHEN 'recusada' THEN 4
-          WHEN 'cancelada' THEN 5
-          WHEN 'concluida' THEN 6
-        END,
-        t.data_solicitacao DESC`,
+      ORDER BY t.status, t.data_solicitacao DESC`,
       [id_usuario]
     );
 
+    // Converter status numérico para string
+    const trocasFormatadas = trocas.map((troca) => ({
+      ...troca,
+      status: STATUS_NAMES[troca.status] || "desconhecido",
+    }));
+
     res.json({
       success: true,
-      trocas: trocas,
+      trocas: trocasFormatadas,
     });
   } catch (err) {
     console.error("Erro ao listar trocas enviadas:", err);
@@ -219,17 +239,26 @@ exports.responderTroca = async (req, res) => {
     const { status } = req.body; // 'aceita', 'recusada', 'em_negociacao'
     const id_usuario = req.session.usuario.id;
 
+    // Mapear string para TINYINT
+    const statusMap = {
+      aceita: STATUS.ACEITA,
+      recusada: STATUS.RECUSADA,
+      em_negociacao: STATUS.EM_NEGOCIACAO,
+    };
+
     // Validação
-    if (!["aceita", "recusada", "em_negociacao"].includes(status)) {
+    if (!statusMap[status]) {
       return res.status(400).json({
         success: false,
         message: "Status inválido",
       });
     }
 
+    const novoStatus = statusMap[status];
+
     // Verificar se a troca existe e se o usuário é o proprietário
     const [troca] = await db.query(
-      `SELECT id_troca, id_usuario_proprietario, status 
+      `SELECT id_troca, id_usuario_ofertante, status 
        FROM troca 
        WHERE id_troca = ?`,
       [id]
@@ -242,14 +271,17 @@ exports.responderTroca = async (req, res) => {
       });
     }
 
-    if (troca[0].id_usuario_proprietario !== id_usuario) {
+    if (troca[0].id_usuario_ofertante !== id_usuario) {
       return res.status(403).json({
         success: false,
         message: "Você não tem permissão para responder esta solicitação",
       });
     }
 
-    if (troca[0].status !== "pendente" && troca[0].status !== "em_negociacao") {
+    if (
+      troca[0].status !== STATUS.PENDENTE &&
+      troca[0].status !== STATUS.EM_NEGOCIACAO
+    ) {
       return res.status(400).json({
         success: false,
         message: "Esta solicitação já foi respondida",
@@ -257,12 +289,11 @@ exports.responderTroca = async (req, res) => {
     }
 
     // Atualizar status da troca
-    const data_resposta = new Date();
     await db.query(
       `UPDATE troca 
-       SET status = ?, data_resposta = ? 
+       SET status = ? 
        WHERE id_troca = ?`,
-      [status, data_resposta, id]
+      [novoStatus, id]
     );
 
     const mensagens = {
@@ -321,7 +352,10 @@ exports.cancelarTroca = async (req, res) => {
       });
     }
 
-    if (!["pendente", "em_negociacao"].includes(troca[0].status)) {
+    if (
+      troca[0].status !== STATUS.PENDENTE &&
+      troca[0].status !== STATUS.EM_NEGOCIACAO
+    ) {
       return res.status(400).json({
         success: false,
         message: "Não é possível cancelar esta solicitação",
@@ -331,9 +365,9 @@ exports.cancelarTroca = async (req, res) => {
     // Atualizar status para cancelada
     await db.query(
       `UPDATE troca 
-       SET status = 'cancelada' 
+       SET status = ? 
        WHERE id_troca = ?`,
-      [id]
+      [STATUS.CANCELADA, id]
     );
 
     res.json({
@@ -366,7 +400,7 @@ exports.concluirTroca = async (req, res) => {
 
     // Verificar se a troca existe e se o usuário participa dela
     const [troca] = await db.query(
-      `SELECT id_troca, id_usuario_proprietario, id_usuario_solicitante, status 
+      `SELECT id_troca, id_usuario_ofertante, id_usuario_solicitante, status 
        FROM troca 
        WHERE id_troca = ?`,
       [id]
@@ -379,11 +413,10 @@ exports.concluirTroca = async (req, res) => {
       });
     }
 
-    const { id_usuario_proprietario, id_usuario_solicitante, status } =
-      troca[0];
+    const { id_usuario_ofertante, id_usuario_solicitante, status } = troca[0];
 
     if (
-      id_usuario !== id_usuario_proprietario &&
+      id_usuario !== id_usuario_ofertante &&
       id_usuario !== id_usuario_solicitante
     ) {
       return res.status(403).json({
@@ -392,19 +425,20 @@ exports.concluirTroca = async (req, res) => {
       });
     }
 
-    if (status !== "aceita") {
+    if (status !== STATUS.ACEITA) {
       return res.status(400).json({
         success: false,
         message: "Apenas trocas aceitas podem ser concluídas",
       });
     }
 
-    // Atualizar status para concluída
+    // Atualizar status para concluída e registrar data de conclusão
+    const data_conclusao = new Date();
     await db.query(
       `UPDATE troca 
-       SET status = 'concluida' 
+       SET status = ?, data_conclusao = ? 
        WHERE id_troca = ?`,
-      [id]
+      [STATUS.CONCLUIDA, data_conclusao, id]
     );
 
     res.json({

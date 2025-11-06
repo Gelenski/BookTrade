@@ -3,6 +3,7 @@ const router = express.Router();
 const userController = require("../controllers/userController");
 const upload = require("../utils/upload");
 
+// Middleware de autenticação
 function verificarAutenticacao(req, res, next) {
   if (req.session && req.session.usuario) {
     return next();
@@ -13,6 +14,7 @@ function verificarAutenticacao(req, res, next) {
   });
 }
 
+// Rotas
 router.post(
   "/cadastrar-livro",
   verificarAutenticacao,
@@ -26,8 +28,10 @@ router.get(
   userController.listarMeusLivros
 );
 
-router.get("/perfil", verificarAutenticacao, userController.obterPerfil);
-
-router.put("/perfil", verificarAutenticacao, userController.atualizarPerfil);
+router.delete(
+  "/deletar-livro/:id",
+  verificarAutenticacao,
+  userController.deletarLivro
+);
 
 module.exports = router;
