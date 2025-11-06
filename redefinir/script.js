@@ -57,6 +57,12 @@ document.addEventListener("DOMContentLoaded", () => {
       const data = await response.json();
       mensagem.textContent = data.message;
       mensagem.style.color = response.ok ? "green" : "red";
+
+      if (response.ok) {
+        setTimeout(() => {
+          window.location.href = "/user/index.html";
+        }, 2000);
+      }
     } catch (error) {
       mensagem.textContent = "Erro ao redefinir senha: " + error.message;
       mensagem.style.color = "red";

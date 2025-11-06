@@ -27,16 +27,14 @@ app.use(
     },
   })
 );
+
+// * Rotas
 app.use(express.static(__dirname));
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 app.use("/api/auth", require("./routes/authRoutes"));
 app.use("/api/user", require("./routes/userRoutes"));
 app.use("/api/admin", require("./routes/adminRoutes"));
-app.use(express.static(__dirname));
-app.use("/uploads", express.static(path.join(__dirname, "uploads")));
-app.use("/api/auth", require("./routes/authRoutes"));
-app.use("/api/user", require("./routes/userRoutes"));
-app.use("/api/admin", require("./routes/adminRoutes"));
+app.use("/api/trade", require("./routes/tradeRoutes"));
 
 function verificarAutenticacao(req, res, next) {
   if (req.session && req.session.usuario) {
@@ -314,6 +312,36 @@ app.get("/api/livros", async (req, res) => {
     res.status(500).json({
       success: false,
       message: "Erro no servidor",
+    });
+  }
+});
+
+app.get("/api/livro/:id/imagens", async (req, res) => {
+  try {
+    const livroId = req.params.id;
+
+    const [imagens] = await db.query(
+      `SELECT id_imagem, caminho_imagem, tipo, data_upload 
+       FROM Livro_imagem 
+       WHERE id_livro = ? 
+       ORDER BY 
+         CASE 
+           WHEN tipo = 'capa' THEN 0 
+           ELSE 1 
+         END,
+         id_imagem`,
+      [livroId]
+    );
+
+    res.json({
+      success: true,
+      imagens: imagens,
+    });
+  } catch (err) {
+    console.error("Erro ao buscar imagens do livro:", err);
+    res.status(500).json({
+      success: false,
+      message: "Erro ao buscar imagens",
     });
   }
 });
