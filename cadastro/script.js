@@ -10,7 +10,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     if (data.success && data.autenticado) {
       const rotas = {
         admin: "/admin/index.html",
-        revisor: "/gestor/index.html",
+        revisor: "/revisor/index.html",
         comum: "/user/index.html",
       };
       window.location.href = rotas[data.usuario.tipo] || "/user/index.html";

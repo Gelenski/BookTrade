@@ -363,3 +363,21 @@ textarea:focus {
 .notificacao.erro {
   border-left: 4px solid #ef4444;
 }
+
+.img-capa {
+  width: 120px;
+  height: 180px;
+  object-fit: cover;
+  border-radius: 8px;
+}
+.sem-capa {
+  width: 120px;
+  height: 180px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f3f4f6;
+  color: #9ca3af;
+  border-radius: 8px;
+  font-size: 0.9rem;
+}
