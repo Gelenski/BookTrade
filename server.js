@@ -93,32 +93,15 @@ app.get(
   }
 );
 
-// * Rota para aprovar um livro
 app.post(
   "/api/livros/:id/aprovar",
   verificarAutenticacao,
   verificarRevisor,
   async (req, res) => {
     const { id } = req.params;
-    const id_usuario = req.usuario.id_usuario;
+    const id_revisor = req.session.usuario.id;
 
     try {
-      // Verifica se o usuário é um revisor na tabela Revisor
-      const [revisor] = await db.query(
-        "SELECT id_revisor FROM Revisor WHERE id_usuario = ?",
-        [id_usuario]
-      );
-
-      if (revisor.length === 0) {
-        return res.status(403).json({
-          success: false,
-          message: "Usuário não é um revisor válido",
-        });
-      }
-
-      const id_revisor = revisor[0].id_revisor;
-
-      // Verifica se o livro existe
       const [livro] = await db.query("SELECT * FROM Livro WHERE id_livro = ?", [
         id,
       ]);
@@ -137,7 +120,6 @@ app.post(
         });
       }
 
-      // Atualiza o status do livro para aprovado
       await db.query(
         `UPDATE Livro 
          SET aprovado = 1, 
@@ -170,7 +152,9 @@ app.post(
   async (req, res) => {
     const { id } = req.params;
     const { motivo } = req.body;
-    const id_usuario = req.usuario.id_usuario;
+
+    // ID do revisor vem da sessão (já validado pelo middleware verificarRevisor)
+    const id_revisor = req.session.usuario.id;
 
     try {
       // Validação do motivo
@@ -180,21 +164,6 @@ app.post(
           message: "O motivo da reprovação é obrigatório",
         });
       }
-
-      // Verifica se o usuário é um revisor na tabela Revisor
-      const [revisor] = await db.query(
-        "SELECT id_revisor FROM Revisor WHERE id_usuario = ?",
-        [id_usuario]
-      );
-
-      if (revisor.length === 0) {
-        return res.status(403).json({
-          success: false,
-          message: "Usuário não é um revisor válido",
-        });
-      }
-
-      const id_revisor = revisor[0].id_revisor;
 
       // Verifica se o livro existe
       const [livro] = await db.query("SELECT * FROM Livro WHERE id_livro = ?", [
@@ -208,6 +177,7 @@ app.post(
         });
       }
 
+      // Verifica se o livro já foi revisado antes
       if (livro[0].aprovado !== null) {
         return res.status(400).json({
           success: false,
@@ -228,7 +198,7 @@ app.post(
 
       res.json({
         success: true,
-        message: "Livro reprovado",
+        message: "Livro reprovado com sucesso",
       });
     } catch (err) {
       console.error("Erro ao reprovar livro:", err);

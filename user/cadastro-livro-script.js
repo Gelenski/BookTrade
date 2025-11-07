@@ -27,7 +27,7 @@ async function protegerPagina(tiposPermitidos = []) {
     alert("Você não tem permissão para acessar esta página");
     const rotas = {
       admin: "/admin/index.html",
-      revisor: "/gestor/index.html",
+      revisor: "/revisor/index.html",
       comum: "/user/index.html",
     };
     window.location.href = rotas[usuario.tipo] || "/login/index.html";

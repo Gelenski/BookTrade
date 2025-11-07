@@ -17,7 +17,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       // Já está autenticado, redireciona para a página apropriada
       const rotas = {
         admin: "/admin/index.html",
-        revisor: "/gestor/index.html",
+        revisor: "/revisor/index.html",
         comum: "/user/index.html",
       };
       window.location.href = rotas[data.usuario.tipo] || "/user/index.html";
@@ -73,8 +73,8 @@ loginForm.addEventListener("submit", async (e) => {
         case "admin":
           url = "/admin/index.html";
           break;
-        case "gestor":
-          url = "/gestor/index.html";
+        case "revisor":
+          url = "/revisor/index.html";
           break;
         case "comum":
           url = "/user/index.html";
