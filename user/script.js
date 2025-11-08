@@ -81,15 +81,20 @@ async function verificarSessao() {
     const btnLogin = document.getElementById("btnLogin");
     const btnLogout = document.getElementById("btnLogout");
 
+    const btnLoginMobile = document.getElementById("btnLoginMobile");
+    const btnLogoutMobile = document.getElementById("btnLogoutMobile");
+
     if (data.success && data.autenticado) {
       state.usuarioAutenticado = data.usuario;
 
       //esconder botão de login
       btnLogin.style.display = "none";
+      btnLoginMobile.style.display = "none";
     } else {
       state.usuarioAutenticado = null;
 
       btnLogout.style.display = "none";
+      btnLogoutMobile.style.display = "none";
     }
   } catch (error) {
     console.error("Erro ao verificar sessão:", error);
@@ -690,11 +695,44 @@ const btnLogout = document.getElementById("btnLogout");
 if (btnLogout) {
   btnLogout.addEventListener("click", handleLogout);
 }
+
+const btnLogoutMobile = document.getElementById("btnLogoutMobile");
+if (btnLogoutMobile) {
+  btnLogoutMobile.addEventListener("click", handleLogout);
+}
 // Inicialização
 async function inicializar() {
   await verificarSessao();
   loadFavorites();
   await carregarLivros();
 }
+// Seleciona os elementos
+const hamburguer = document.querySelector(".hamburguer");
+const mobileNav = document.querySelector(".mobile-nav");
+
+// Adiciona o evento de clique no botão hambúrguer
+hamburguer.addEventListener("click", () => {
+  // Alterna a classe 'show' no menu mobile
+  mobileNav.classList.toggle("show");
+});
+
+// Fecha o menu ao clicar em qualquer link do menu mobile
+const mobileLinks = document.querySelectorAll(
+  ".mobile-nav a, .mobile-nav button"
+);
+mobileLinks.forEach((link) => {
+  link.addEventListener("click", () => {
+    mobileNav.classList.remove("show");
+    hamburguer.classList.remove("active");
+  });
+});
+
+// Fecha o menu ao clicar fora
+document.addEventListener("click", (e) => {
+  if (!hamburguer.contains(e.target) && !mobileNav.contains(e.target)) {
+    mobileNav.classList.remove("show");
+    hamburguer.classList.remove("active");
+  }
+});
 
 inicializar();

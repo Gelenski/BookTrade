@@ -83,6 +83,11 @@ function initializeEventListeners() {
     btnLogout.addEventListener("click", handleLogout);
   }
 
+  const btnLogoutMobile = document.getElementById("btnLogoutMobile");
+  if (btnLogoutMobile) {
+    btnLogoutMobile.addEventListener("click", handleLogout);
+  }
+
   const btnFecharModal = document.getElementById("btnFecharModal");
   if (btnFecharModal) {
     btnFecharModal.addEventListener("click", () => {
@@ -479,3 +484,32 @@ style.textContent = `
   }
 `;
 document.head.appendChild(style);
+
+// Seleciona os elementos
+const hamburguer = document.querySelector(".hamburguer");
+const mobileNav = document.querySelector(".mobile-nav");
+
+// Adiciona o evento de clique no botão hambúrguer
+hamburguer.addEventListener("click", () => {
+  // Alterna a classe 'show' no menu mobile
+  mobileNav.classList.toggle("show");
+});
+
+// Fecha o menu ao clicar em qualquer link do menu mobile
+const mobileLinks = document.querySelectorAll(
+  ".mobile-nav a, .mobile-nav button"
+);
+mobileLinks.forEach((link) => {
+  link.addEventListener("click", () => {
+    mobileNav.classList.remove("show");
+    hamburguer.classList.remove("active");
+  });
+});
+
+// Fecha o menu ao clicar fora
+document.addEventListener("click", (e) => {
+  if (!hamburguer.contains(e.target) && !mobileNav.contains(e.target)) {
+    mobileNav.classList.remove("show");
+    hamburguer.classList.remove("active");
+  }
+});
