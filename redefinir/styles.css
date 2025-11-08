@@ -115,17 +115,17 @@ p {
   display: flex;
   align-items: center;
   gap: 6px;
-  margin-top: -10px; 
-  margin-bottom: 15px; 
+  margin-top: -10px;
+  margin-bottom: 15px;
 }
 
 .mostrar-senha input[type="checkbox"] {
   width: auto;
-  margin: 0; 
+  margin: 0;
 }
 
 .mostrar-senha label {
-  margin: 0; 
+  margin: 0;
 }
 
 /* Remove ícone de mostrar senha no Edge */
