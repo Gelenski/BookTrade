@@ -88,6 +88,7 @@ header {
   text-decoration: none;
   font-weight: 500;
   transition: var(--transition);
+  margin-top: 3px;
 }
 
 .desktop-nav a:hover {
@@ -853,6 +854,21 @@ main {
 
 .btn-delete:hover {
   background: #dc2626;
+}
+
+.btn-logout {
+  padding: 8px 16px;
+  background: #ef4444;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.btn-logout:hover {
+  background: #b91c1c;
 }
 
 /* Utility Classes */

@@ -300,6 +300,30 @@ function mostrarNotificacao(texto, tipo) {
     notificacao.classList.remove("mostrar");
   }, 3000);
 }
+// ==================== LOGOUT ====================
+async function handleLogout() {
+  if (!confirm("Deseja realmente sair?")) {
+    return;
+  }
+
+  try {
+    const response = await fetch("/api/auth/logout", {
+      method: "POST",
+      credentials: "include",
+    });
+
+    const data = await response.json();
+
+    if (data.success) {
+      window.location.href = "/login/index.html";
+    } else {
+      window.location.href = "/login/index.html";
+    }
+  } catch (error) {
+    console.error("Erro ao fazer logout:", error);
+    window.location.href = "/login/index.html";
+  }
+}
 
 // ==================== EVENT LISTENERS ====================
 document.querySelectorAll(".botao-filtro").forEach((botao) => {
@@ -329,5 +353,9 @@ document.addEventListener("keydown", function (e) {
   }
 });
 
+const btnLogout = document.getElementById("btnLogout");
+if (btnLogout) {
+  btnLogout.addEventListener("click", handleLogout);
+}
 // ==================== INICIALIZAÇÃO ====================
 carregarLivros();
