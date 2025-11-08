@@ -117,6 +117,30 @@ p a {
 p a:hover {
   text-decoration: underline;
 }
+
+.mostrar-senha {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: -10px; 
+  margin-bottom: 15px; 
+}
+
+.mostrar-senha input[type="checkbox"] {
+  width: auto;
+  margin: 0; 
+}
+
+.mostrar-senha label {
+  margin: 0; 
+}
+
+/* Remove ícone de mostrar senha no Edge */
+input[type="password"]::-ms-reveal,
+input[type="password"]::-ms-clear {
+  display: none;
+}
+
 .message {
   text-align: center;
   font-weight: bold;

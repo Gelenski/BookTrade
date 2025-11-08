@@ -3,6 +3,8 @@ const loginForm = document.getElementById("loginForm");
 const emailInput = document.getElementById("email");
 const passwordInput = document.getElementById("password");
 const messageDiv = document.getElementById("message");
+const toggleSenha = document.getElementById("toggleSenha");
+const password = document.getElementById("password")
 
 // * Verifica se já está autenticado ao carregar a página
 document.addEventListener("DOMContentLoaded", async () => {
@@ -96,6 +98,10 @@ loginForm.addEventListener("submit", async (e) => {
     submitBtn.disabled = false;
     submitBtn.textContent = "Entrar";
   }
+});
+//mostar senha 
+toggleSenha.addEventListener("change", () => {
+  password.type = toggleSenha.checked ? "text" : "password";
 });
 
 // Função para exibir mensagens
