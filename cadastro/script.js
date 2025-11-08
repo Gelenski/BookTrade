@@ -112,3 +112,10 @@ form.addEventListener("submit", async (e) => {
     console.error("Erro ao logar após cadastro:", error);
   }
 });
+//mostrar senha
+const toggleSenha = document.getElementById("toggleSenha");
+const inputSenha = document.getElementById("input-senha");
+
+toggleSenha.addEventListener("change", () => {
+  inputSenha.type = toggleSenha.checked ? "text" : "password";
+});

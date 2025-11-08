@@ -75,3 +75,16 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 });
+const toggleSenha = document.getElementById("toggleSenha");
+const senha1 = document.getElementById("novasenha");
+const senha2 = document.getElementById("confirmarsenha");
+
+toggleSenha.addEventListener("change", () => {
+  if (toggleSenha.checked) {
+    senha1.type = "text";
+    senha2.type = "text";
+  } else {
+    senha1.type = "password";
+    senha2.type = "password";
+  }
+});
