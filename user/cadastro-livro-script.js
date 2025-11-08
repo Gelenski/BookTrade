@@ -86,7 +86,7 @@ function initializeEventListeners() {
   const btnFecharModal = document.getElementById("btnFecharModal");
   if (btnFecharModal) {
     btnFecharModal.addEventListener("click", () => {
-      window.location.href = "/user/meus-livros.html";
+      window.location.href = "/user/";
     });
   }
 

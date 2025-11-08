@@ -4,13 +4,34 @@
   box-sizing: border-box;
 }
 
+:root {
+  --primary: #3b82f6;
+  --primary-hover: #2563eb;
+  --success: #10b981;
+  --success-hover: #059669;
+  --danger: #ef4444;
+  --danger-hover: #dc2626;
+  --gray-50: #f9fafb;
+  --gray-100: #f3f4f6;
+  --gray-200: #e5e7eb;
+  --gray-300: #d1d5db;
+  --gray-400: #9ca3af;
+  --gray-500: #6b7280;
+  --gray-600: #4b5563;
+  --gray-700: #374151;
+  --gray-800: #1f2937;
+  --gray-900: #111827;
+}
+
 body {
   font-family:
     -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu,
     Cantarell, sans-serif;
-  background: #f5f7fa;
+  background: var(--gray-50);
+  min-height: 100vh;
 }
 
+/* ==================== NAVBAR ==================== */
 .barra-navegacao {
   background: white;
   padding: 1rem 2rem;
@@ -18,14 +39,9 @@ body {
   display: flex;
   align-items: center;
   justify-content: space-between;
-}
-
-.logo svg {
-  width: 32px;
-  height: 32px;
-  fill: none;
-  stroke: #3b82f6;
-  stroke-width: 2;
+  position: sticky;
+  top: 0;
+  z-index: 100;
 }
 
 .logo {
@@ -34,7 +50,16 @@ body {
   gap: 0.5rem;
   font-size: 1.5rem;
   font-weight: bold;
-  color: #2d3748;
+  color: var(--gray-800);
+}
+
+.logo svg {
+  width: 32px;
+  height: 32px;
+  fill: none;
+  stroke: var(--primary);
+  stroke-width: 2;
+  flex-shrink: 0;
 }
 
 .links-navegacao {
@@ -45,33 +70,43 @@ body {
 
 .links-navegacao a {
   text-decoration: none;
-  color: #718096;
+  color: var(--gray-500);
   font-weight: 500;
   transition: color 0.2s;
+  white-space: nowrap;
 }
 
 .links-navegacao a:hover {
-  color: #2d3748;
+  color: var(--gray-800);
 }
 
+/* ==================== CONTAINER ==================== */
 .container {
   max-width: 1400px;
   margin: 0 auto;
-  padding: 2rem;
+  padding: 1rem;
 }
 
+/* ==================== CABEÇALHO ==================== */
 .cabecalho {
   margin-bottom: 2rem;
 }
 
 .cabecalho h1 {
-  font-size: 2.5rem;
-  color: #2d3748;
+  font-size: clamp(1.75rem, 5vw, 2.5rem);
+  color: var(--gray-800);
   margin-bottom: 0.5rem;
 }
 
+.cabecalho p {
+  color: var(--gray-500);
+  font-size: clamp(0.875rem, 2vw, 1.125rem);
+}
+
+/* ==================== ESTATÍSTICAS ==================== */
 .estatisticas {
-  display: flex;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   gap: 1rem;
   margin-bottom: 2rem;
 }
@@ -81,61 +116,69 @@ body {
   padding: 1.5rem;
   border-radius: 12px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-  flex: 1;
+  transition:
+    transform 0.2s,
+    box-shadow 0.2s;
+}
+
+.cartao-estatistica:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
 }
 
 .cartao-estatistica h3 {
   font-size: 0.875rem;
-  color: #718096;
+  color: var(--gray-500);
   margin-bottom: 0.5rem;
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
 
 .cartao-estatistica p {
-  font-size: 2rem;
+  font-size: clamp(1.5rem, 4vw, 2rem);
   font-weight: bold;
-  color: #2d3748;
+  color: var(--gray-800);
 }
 
+/* ==================== FILTROS ==================== */
 .filtros {
   background: white;
   padding: 1.5rem;
   border-radius: 12px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
   margin-bottom: 2rem;
-  display: flex;
-  gap: 1rem;
-  align-items: center;
 }
 
 .grupo-filtros {
   display: flex;
   gap: 0.5rem;
+  flex-wrap: wrap;
 }
 
 .botao-filtro {
   padding: 0.5rem 1rem;
-  border: 2px solid #e2e8f0;
+  border: 2px solid var(--gray-200);
   background: white;
   border-radius: 8px;
   cursor: pointer;
   font-weight: 500;
-  color: #4a5568;
+  color: var(--gray-600);
   transition: all 0.2s;
+  font-size: 0.875rem;
 }
 
 .botao-filtro:hover {
-  border-color: #3b82f6;
-  color: #3b82f6;
+  border-color: var(--primary);
+  color: var(--primary);
 }
 
 .botao-filtro.ativo {
-  background: #3b82f6;
+  background: var(--primary);
   color: white;
-  border-color: #3b82f6;
+  border-color: var(--primary);
 }
 
+/* ==================== LISTA DE LIVROS ==================== */
 .lista-livros {
   display: flex;
   flex-direction: column;
@@ -152,6 +195,7 @@ body {
   transition:
     transform 0.2s,
     box-shadow 0.2s;
+  flex-direction: column;
 }
 
 .cartao-livro:hover {
@@ -159,23 +203,47 @@ body {
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
 }
 
+/* Capa do Livro */
 .capa-livro {
-  width: 120px;
-  height: 180px;
+  width: 100%;
+  height: 200px;
   border-radius: 8px;
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
+  overflow: hidden;
+  background: var(--gray-100);
 }
 
-.capa-livro svg {
-  width: 60px;
-  height: 60px;
-  fill: white;
-  opacity: 0.9;
+.img-capa {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 8px;
 }
 
+.sem-capa {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--gray-100);
+  color: var(--gray-400);
+  border-radius: 8px;
+  font-size: 0.9rem;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.sem-capa svg {
+  width: 3rem;
+  height: 3rem;
+  stroke: var(--gray-300);
+}
+
+/* Info do Livro */
 .info-livro {
   flex: 1;
   display: flex;
@@ -184,14 +252,15 @@ body {
 }
 
 .titulo-livro {
-  font-size: 1.5rem;
+  font-size: clamp(1.25rem, 3vw, 1.5rem);
   font-weight: bold;
-  color: #2d3748;
+  color: var(--gray-800);
+  line-height: 1.3;
 }
 
 .autor-livro {
-  font-size: 1.125rem;
-  color: #718096;
+  font-size: clamp(1rem, 2vw, 1.125rem);
+  color: var(--gray-500);
 }
 
 .metadados-livro {
@@ -205,27 +274,31 @@ body {
   align-items: center;
   gap: 0.5rem;
   padding: 0.5rem 1rem;
-  background: #f7fafc;
+  background: var(--gray-50);
   border-radius: 6px;
   font-size: 0.875rem;
-  color: #4a5568;
+  color: var(--gray-600);
 }
 
 .descricao-livro {
-  color: #4a5568;
+  color: var(--gray-600);
   line-height: 1.6;
+  font-size: 0.875rem;
 }
 
 .enviado-por {
   font-size: 0.875rem;
-  color: #718096;
+  color: var(--gray-500);
   margin-top: 0.5rem;
 }
 
+/* Ações */
 .acoes {
   display: flex;
   gap: 1rem;
   align-items: center;
+  flex-wrap: wrap;
+  margin-top: auto;
 }
 
 .botao {
@@ -235,38 +308,50 @@ body {
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s;
-  font-size: 1rem;
+  font-size: 0.875rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex: 1;
+  min-width: 120px;
+  justify-content: center;
 }
 
 .botao-aprovar {
-  background: #10b981;
+  background: var(--success);
   color: white;
 }
 
-.botao-aprovar:hover {
-  background: #059669;
+.botao-aprovar:hover:not(:disabled) {
+  background: var(--success-hover);
   transform: translateY(-1px);
 }
 
 .botao-reprovar {
-  background: #ef4444;
+  background: var(--danger);
   color: white;
 }
 
-.botao-reprovar:hover {
-  background: #dc2626;
+.botao-reprovar:hover:not(:disabled) {
+  background: var(--danger-hover);
   transform: translateY(-1px);
 }
 
 .botao-detalhes {
-  background: #e2e8f0;
-  color: #4a5568;
+  background: var(--gray-200);
+  color: var(--gray-600);
 }
 
 .botao-detalhes:hover {
-  background: #cbd5e0;
+  background: var(--gray-300);
 }
 
+.botao:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* ==================== MODAL ==================== */
 .modal {
   display: none;
   position: fixed;
@@ -278,6 +363,7 @@ body {
   z-index: 1000;
   align-items: center;
   justify-content: center;
+  padding: 1rem;
 }
 
 .modal.ativo {
@@ -289,15 +375,17 @@ body {
   border-radius: 12px;
   padding: 2rem;
   max-width: 500px;
-  width: 90%;
+  width: 100%;
   box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+  max-height: 90vh;
+  overflow-y: auto;
 }
 
 .cabecalho-modal {
-  font-size: 1.5rem;
+  font-size: clamp(1.25rem, 3vw, 1.5rem);
   font-weight: bold;
   margin-bottom: 1rem;
-  color: #2d3748;
+  color: var(--gray-800);
 }
 
 .corpo-modal {
@@ -307,25 +395,28 @@ body {
 textarea {
   width: 100%;
   padding: 0.75rem;
-  border: 2px solid #e2e8f0;
+  border: 2px solid var(--gray-200);
   border-radius: 8px;
   font-family: inherit;
   font-size: 1rem;
   resize: vertical;
   min-height: 100px;
+  transition: border-color 0.2s;
 }
 
 textarea:focus {
   outline: none;
-  border-color: #3b82f6;
+  border-color: var(--primary);
 }
 
 .acoes-modal {
   display: flex;
   gap: 1rem;
   justify-content: flex-end;
+  flex-wrap: wrap;
 }
 
+/* ==================== NOTIFICAÇÃO ==================== */
 .notificacao {
   position: fixed;
   top: 2rem;
@@ -338,6 +429,7 @@ textarea:focus {
   align-items: center;
   gap: 1rem;
   z-index: 2000;
+  max-width: 400px;
 }
 
 .notificacao.mostrar {
@@ -357,27 +449,127 @@ textarea:focus {
 }
 
 .notificacao.sucesso {
-  border-left: 4px solid #10b981;
+  border-left: 4px solid var(--success);
 }
 
 .notificacao.erro {
-  border-left: 4px solid #ef4444;
+  border-left: 4px solid var(--danger);
 }
 
-.img-capa {
-  width: 120px;
-  height: 180px;
-  object-fit: cover;
-  border-radius: 8px;
+/* ==================== RESPONSIVIDADE ==================== */
+
+/* Tablets e acima */
+@media (min-width: 768px) {
+  .container {
+    padding: 2rem;
+  }
+
+  .cartao-livro {
+    flex-direction: row;
+  }
+
+  .capa-livro {
+    width: 150px;
+    height: 220px;
+  }
+
+  .acoes {
+    flex-wrap: nowrap;
+  }
+
+  .botao {
+    flex: 0;
+    min-width: auto;
+  }
 }
-.sem-capa {
-  width: 120px;
-  height: 180px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: #f3f4f6;
-  color: #9ca3af;
-  border-radius: 8px;
-  font-size: 0.9rem;
+
+/* Desktop */
+@media (min-width: 1024px) {
+  .estatisticas {
+    grid-template-columns: repeat(4, 1fr);
+  }
+
+  .capa-livro {
+    width: 180px;
+    height: 260px;
+  }
+}
+
+/* Mobile pequeno */
+@media (max-width: 640px) {
+  .barra-navegacao {
+    padding: 1rem;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .links-navegacao {
+    gap: 1rem;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .links-navegacao a {
+    font-size: 0.875rem;
+  }
+
+  .cabecalho {
+    text-align: center;
+  }
+
+  .filtros {
+    padding: 1rem;
+  }
+
+  .grupo-filtros {
+    justify-content: center;
+  }
+
+  .cartao-livro {
+    padding: 1rem;
+  }
+
+  .acoes {
+    flex-direction: column;
+  }
+
+  .botao {
+    width: 100%;
+  }
+
+  .acoes-modal {
+    flex-direction: column;
+  }
+
+  .acoes-modal .botao {
+    width: 100%;
+  }
+
+  .notificacao {
+    left: 1rem;
+    right: 1rem;
+    top: auto;
+    bottom: 2rem;
+  }
+}
+
+/* Landscape em mobile */
+@media (max-height: 600px) and (orientation: landscape) {
+  .conteudo-modal {
+    max-height: 80vh;
+  }
+}
+
+/* Acessibilidade - preferência por movimento reduzido */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Dark mode support (opcional) */
+@media (prefers-color-scheme: dark) {
+  /* Adicione estilos dark mode aqui se desejar */
 }
