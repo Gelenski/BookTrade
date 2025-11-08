@@ -74,6 +74,8 @@ body {
   font-weight: 500;
   transition: color 0.2s;
   white-space: nowrap;
+  display: flex;
+  margin-top: 5px;
 }
 
 .links-navegacao a:hover {
@@ -351,6 +353,21 @@ body {
   cursor: not-allowed;
 }
 
+.btn-logout {
+  padding: 8px 16px;
+  background: var(--danger);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.btn-logout:hover {
+  background: #b91c1c;
+}
+
 /* ==================== MODAL ==================== */
 .modal {
   display: none;
@@ -499,7 +516,6 @@ textarea:focus {
 @media (max-width: 640px) {
   .barra-navegacao {
     padding: 1rem;
-    flex-direction: column;
     gap: 1rem;
   }
 

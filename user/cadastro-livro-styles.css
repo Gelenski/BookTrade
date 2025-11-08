@@ -92,18 +92,18 @@ header {
 }
 
 .btn-logout {
-  padding: 0.5rem 1rem;
-  background: var(--danger-color);
+  padding: 8px 16px;
+  background: #ef4444;
   color: white;
   border: none;
-  border-radius: var(--radius-md);
-  font-weight: 500;
+  border-radius: 6px;
   cursor: pointer;
-  transition: var(--transition);
+  font-size: 14px;
+  font-weight: 500;
 }
 
 .btn-logout:hover {
-  background: #dc2626;
+  background: #b91c1c;
 }
 
 /* Main Content */

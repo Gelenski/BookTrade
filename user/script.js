@@ -78,8 +78,18 @@ async function verificarSessao() {
     const response = await fetch("/api/auth/verificar-sessao");
     const data = await response.json();
 
+    const btnLogin = document.getElementById("btnLogin");
+    const btnLogout = document.getElementById("btnLogout");
+
     if (data.success && data.autenticado) {
       state.usuarioAutenticado = data.usuario;
+
+      //esconder botão de login
+      btnLogin.style.display = "none";
+    } else {
+      state.usuarioAutenticado = null;
+
+      btnLogout.style.display = "none";
     }
   } catch (error) {
     console.error("Erro ao verificar sessão:", error);
@@ -651,7 +661,35 @@ document.getElementById("modalFavoriteBtn").addEventListener("click", () => {
 });
 
 elements.sendTradeBtn.addEventListener("click", sendTradeRequest);
+//===========LOGOUT============
+async function handleLogout() {
+  if (!confirm("Deseja realmente sair?")) {
+    return;
+  }
 
+  try {
+    const response = await fetch("/api/auth/logout", {
+      method: "POST",
+      credentials: "include",
+    });
+
+    const data = await response.json();
+
+    if (data.success) {
+      window.location.href = "/login/index.html";
+    } else {
+      window.location.href = "/login/index.html";
+    }
+  } catch (error) {
+    console.error("Erro ao fazer logout:", error);
+    window.location.href = "/login/index.html";
+  }
+}
+
+const btnLogout = document.getElementById("btnLogout");
+if (btnLogout) {
+  btnLogout.addEventListener("click", handleLogout);
+}
 // Inicialização
 async function inicializar() {
   await verificarSessao();
