@@ -96,10 +96,22 @@ CREATE TABLE Troca (
     FOREIGN KEY (id_livro_solicitado) REFERENCES Livro(id_livro)
 );
 
+CREATE TABLE Troca_token (
+    id_token INT AUTO_INCREMENT PRIMARY KEY,
+    token VARCHAR(255) NOT NULL UNIQUE,
+    tipo_acao ENUM('aprovar', 'rejeitar') NOT NULL,
+    data_criacao DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    data_expiracao DATETIME NOT NULL,
+    usado TINYINT DEFAULT 0,
+    id_troca INT NOT NULL,
+    FOREIGN KEY (id_troca) REFERENCES Troca(id_troca)
+);
+
 CREATE TABLE Historico (
     id_historico INT AUTO_INCREMENT PRIMARY KEY,
     data_evento DATETIME NOT NULL,
     acao VARCHAR(100) NOT NULL,
+    detalhes TEXT,
     id_usuario INT NOT NULL,
     id_troca INT NOT NULL,
     FOREIGN KEY (id_usuario) REFERENCES Usuario(id_usuario),
