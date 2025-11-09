@@ -29,6 +29,9 @@ app.use(
 );
 
 // * Rotas
+app.get("/", (req, res) => {
+  res.redirect("/user");
+});
 app.use(express.static(__dirname));
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 app.use("/api/auth", require("./routes/authRoutes"));
