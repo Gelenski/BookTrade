@@ -118,6 +118,13 @@ exports.cadastro = async (req, res) => {
       });
     }
 
+    if (!cep || !rua || !numero || !bairro || !cidade) {
+      return res.status(400).json({
+        success: false,
+        message: "Endereço incompleto. Preencha CEP, rua, número, bairro e cidade",
+      });
+    }
+
     // Verifica se email já existe
     const [emailExists] = await db.query(
       "SELECT id_usuario FROM usuario WHERE email = ?",
@@ -132,7 +139,14 @@ exports.cadastro = async (req, res) => {
     }
 
     // Remove tudo que não for número do CEP
-    const cepLimpo = cep.replace(/\D/g, "");
+    const cepLimpo = String(cep).replace(/\D/g, "");
+
+    if (cepLimpo.length !== 8) {
+      return res.status(400).json({
+        success: false,
+        message: "CEP inválido",
+      });
+    }
 
     // Criptografa senha
     const senhaHash = await bcrypt.hash(senha, 10);
